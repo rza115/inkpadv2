@@ -247,9 +247,9 @@ function showGeneratorToast(msg, isError) {
   }, 2500);
 }
 
-// ── Export as ES6 module ──
-export { 
-  initGenerator as init, 
-  openGenerator as open, 
-  closeGenerator as close 
+// ── Expose globally (loaded as regular script, not ES module) ──
+window.InkpadRandom = {
+  init: initGenerator,
+  open: openGenerator,
+  close: closeGenerator,
 };

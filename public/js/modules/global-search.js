@@ -429,5 +429,9 @@ function countWords(text) {
   return (text || '').trim() ? (text || '').trim().split(/\s+/).length : 0;
 }
 
-// ── Export as ES6 module ──
-export { initGlobalSearch as init, openSearch as open, closeSearch as close };
+// ── Expose globally (loaded as regular script, not ES module) ──
+window.InkpadSearch = {
+  init: initGlobalSearch,
+  open: openSearch,
+  close: closeSearch,
+};
