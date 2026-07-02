@@ -86,7 +86,6 @@ export default function EpubReaderPage() {
       "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
       "https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js",
       "/js/core/supabase-client.js",
-      "/js/core/auth-guard.js",
       "/js/core/project-context.js",
       "/js/core/pwa-register.js",
       "/js/modules/theme.js",

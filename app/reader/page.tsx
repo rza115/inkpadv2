@@ -32,7 +32,6 @@ export default function ReaderPage() {
     const scriptUrls = [
       "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
       "/js/core/supabase-client.js",
-      "/js/core/auth-guard.js",
       "/js/core/project-context.js",
       "/js/core/pwa-register.js",
       "/js/core/pageInit.js",

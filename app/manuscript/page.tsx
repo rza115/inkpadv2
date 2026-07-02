@@ -34,7 +34,6 @@ export default function ManuscriptPage() {
     const scriptUrls = [
       "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
       "/js/core/supabase-client.js",
-      "/js/core/auth-guard.js",
       "/js/core/project-context.js",
       "/js/core/offline-queue.js",
       "/js/core/pwa-register.js",

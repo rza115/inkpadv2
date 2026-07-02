@@ -20,3 +20,9 @@ var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     detectSessionInUrl: true,
   },
 });
+
+// Sign out helper (moved from auth-guard.js which is not loaded in Next.js pages)
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  window.location.href = '/login';
+}

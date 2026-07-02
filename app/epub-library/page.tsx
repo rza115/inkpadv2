@@ -35,7 +35,6 @@ export default function EpubLibraryPage() {
       "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
       "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
       "/js/core/supabase-client.js",
-      "/js/core/auth-guard.js",
       "/js/core/project-context.js",
       "/js/core/offline-queue.js",
       "/js/core/pwa-register.js",
