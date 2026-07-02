@@ -12,8 +12,8 @@ if (typeof supabase === 'undefined') {
   console.error('Supabase SDK belum dimuat. Pastikan script CDN supabase-js ada sebelum supabase-client.js');
 }
 
-// window.supabaseClient dipakai di semua halaman & module lain
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+// Use var so it becomes a window property accessible everywhere
+var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
