@@ -14,6 +14,21 @@ export default function WorldbuildingPage() {
     document.body.dataset.page = "world";
     document.body.dataset.title = "Memuat…";
 
+    // Load CSS files
+    const cssFiles = [
+      '/css/base.css',
+      '/css/layout.css',
+      '/css/components.css'
+    ];
+    cssFiles.forEach(href => {
+      if (!document.querySelector(`link[href="${href}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        document.head.appendChild(link);
+      }
+    });
+
     // Load scripts in order
     const scriptUrls = [
       "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
