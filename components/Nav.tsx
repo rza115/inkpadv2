@@ -41,9 +41,14 @@ interface NavProps {
    * Active project ID (for project-specific URLs)
    */
   projectId?: string | null;
+  
+  /**
+   * Page content to render inside the layout
+   */
+  children?: React.ReactNode;
 }
 
-export function Nav({ layout = 'hub', title = 'Inkpad', projectId = null }: NavProps) {
+export function Nav({ layout = 'hub', title = 'Inkpad', projectId = null, children }: NavProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuthStore();
   const [isOnline, setIsOnline] = useState(true);
@@ -148,6 +153,9 @@ export function Nav({ layout = 'hub', title = 'Inkpad', projectId = null }: NavP
             </button>
           </div>
         </header>
+        
+        {/* Page Content */}
+        {children}
       </div>
     </div>
   );

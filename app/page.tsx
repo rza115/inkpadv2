@@ -106,20 +106,18 @@ export default function HubPage() {
   // Show loading while authenticating
   if (authLoading) {
     return (
-      <>
-        <Nav layout="hub" title="Inkpad" />
+      <Nav layout="hub" title="Inkpad">
         <main id="page-main">
           <Loading message="Memuat…" />
         </main>
-      </>
+      </Nav>
     );
   }
 
   return (
     <>
-      <Nav layout="hub" title="Inkpad" />
-      
-      <main id="page-main">
+      <Nav layout="hub" title="Inkpad">
+        <main id="page-main">
         <div className="hub-shell">
           {/* Toolbar with Sort */}
           <div className="hub-toolbar">
@@ -167,6 +165,7 @@ export default function HubPage() {
           </div>
         </div>
       </main>
+      </Nav>
 
       {/* Project Create/Edit Modal */}
       <ProjectModal
