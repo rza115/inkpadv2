@@ -1,0 +1,46 @@
+/* css/splash.css — splash screen PWA (rasio 9:16) */
+
+html.inkpad-splash-active {
+  overflow: hidden;
+}
+
+html.inkpad-splash-active body {
+  overflow: hidden;
+}
+
+.inkpad-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1b1a17;
+  overflow: hidden;
+}
+
+.inkpad-splash__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  aspect-ratio: 9 / 16;
+}
+
+/* Layar portrait ~9:16 — gambar penuh tanpa letterbox */
+@media (orientation: portrait) and (max-aspect-ratio: 10/16) {
+  .inkpad-splash__img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    object-fit: cover;
+  }
+}
+
+.inkpad-splash.is-hiding {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}

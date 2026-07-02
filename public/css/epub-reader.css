@@ -1,0 +1,459 @@
+/* css/epub-reader.css — EPUB Reader module styles */
+
+/* ─── tema variables (diclone dari reader.css pattern) ─── */
+.ep-dark  { --ep-bg:#1b1a17; --ep-surface:#242220; --ep-border:rgba(244,241,234,.10); --ep-text:#f4f1ea; --ep-muted:#a8a399; --ep-accent:#d68a3c; }
+.ep-sepia { --ep-bg:#f5f0e8; --ep-surface:#ece5d8; --ep-border:rgba(0,0,0,.12);       --ep-text:#3d2b1f; --ep-muted:#8c7355; --ep-accent:#9c5a1e; }
+.ep-light { --ep-bg:#ffffff; --ep-surface:#f5f5f5; --ep-border:rgba(0,0,0,.10);        --ep-text:#1a1a1a; --ep-muted:#666;    --ep-accent:#c07820; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── Library page ─── */
+.epub-library-shell {
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--text);
+}
+
+.epub-library-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.epub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+}
+
+.epub-card {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.epub-cover {
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 28px;
+  border: 1px solid var(--border);
+  box-shadow: 2px 3px 10px rgba(0,0,0,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+
+.epub-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.epub-card:hover .epub-cover {
+  transform: translateY(-3px);
+  box-shadow: 2px 6px 16px rgba(0,0,0,0.45);
+}
+
+.epub-book-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.epub-book-author {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.epub-delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(27,26,23,0.7);
+  border: none;
+  color: #f4f1ea;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.epub-card:hover .epub-delete-btn { opacity: 1; }
+
+.epub-upload-card {
+  cursor: pointer;
+}
+.epub-upload-card .epub-cover {
+  border-style: dashed;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.epub-upload-card:hover .epub-cover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: none;
+  box-shadow: none;
+}
+.epub-upload-card .epub-cover i { font-size: 24px; }
+
+.epub-uploading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(27,26,23,0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 200;
+  font-size: 14px;
+  color: #f4f1ea;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.epub-progress-bar-track {
+  width: 260px;
+  height: 4px;
+  background: rgba(244,241,234,0.2);
+  border-radius: 2px;
+}
+
+.epub-progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+/* ─── Reader shell ─── */
+body.epub-reader-body {
+  background: var(--ep-bg);
+  color: var(--ep-text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: 'IBM Plex Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* topbar */
+.ep-topbar {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--ep-border);
+  flex-shrink: 0;
+  background: var(--ep-bg);
+  z-index: 10;
+}
+
+.ep-topbar-btn {
+  background: none;
+  border: 1px solid var(--ep-border);
+  color: var(--ep-text);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.ep-topbar-btn:hover { border-color: var(--ep-accent); color: var(--ep-accent); }
+
+.ep-title {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ep-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ep-ctrl-btn {
+  background: none;
+  border: 1px solid var(--ep-border);
+  color: var(--ep-muted);
+  border-radius: 6px;
+  width: 30px;
+  height: 28px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+.ep-ctrl-btn:hover { color: var(--ep-text); border-color: var(--ep-accent); }
+.ep-ctrl-btn.wide { width: auto; padding: 0 8px; font-size: 11px; }
+
+/* body layout */
+.ep-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* TOC */
+.ep-toc {
+  width: 240px;
+  border-right: 1px solid var(--ep-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.2s ease;
+  background: var(--ep-bg);
+}
+.ep-toc.collapsed { width: 0; border: none; }
+
+.ep-toc-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ep-border);
+  flex-shrink: 0;
+}
+.ep-toc-header p {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ep-muted);
+  margin: 0;
+}
+
+.ep-toc-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.ep-toc-item {
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ep-muted);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+.ep-toc-item:hover { background: var(--ep-surface); color: var(--ep-text); }
+.ep-toc-item.active { background: var(--ep-surface); color: var(--ep-accent); }
+.ep-toc-item.indent-1 { padding-left: 22px; font-size: 12px; }
+.ep-toc-item.indent-2 { padding-left: 34px; font-size: 11px; }
+
+/* iframe reading pane */
+.ep-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.ep-viewer {
+  flex: 1;
+  border: none;
+  display: block;
+}
+
+/* Tap zones buat navigasi (kiri/kanan) */
+.ep-tap-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 25%;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+}
+.ep-tap-prev { left: 0; justify-content: flex-start; padding-left: 12px; }
+.ep-tap-next { right: 0; justify-content: flex-end; padding-right: 12px; }
+.ep-tap-zone i {
+  font-size: 20px;
+  color: var(--ep-muted);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.ep-tap-zone:hover i { opacity: 0.5; }
+
+/* progress bar bawah */
+.ep-progressbar {
+  height: 3px;
+  background: var(--ep-surface);
+  flex-shrink: 0;
+}
+.ep-progressbar-fill {
+  height: 100%;
+  background: var(--ep-accent);
+  transition: width 0.4s;
+  width: 0%;
+}
+
+/* Loading state */
+.ep-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ep-muted);
+  font-size: 14px;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+  background: var(--ep-bg);
+}
+
+/* Format Panel (right sidebar) */
+.ep-format-panel {
+  width: 280px;
+  border-left: 1px solid var(--ep-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.2s ease;
+  background: var(--ep-bg);
+  order: 3;
+}
+.ep-format-panel.collapsed { width: 0; border: none; }
+
+.ep-format-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ep-border);
+  flex-shrink: 0;
+}
+.ep-format-header p {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ep-muted);
+  margin: 0;
+}
+
+.ep-format-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ep-format-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ep-format-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ep-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+
+.ep-format-controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ep-format-btn {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-border);
+  color: var(--ep-muted);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: all 0.15s;
+  flex: 1;
+  min-width: 0;
+}
+
+.ep-format-btn:hover {
+  border-color: var(--ep-accent);
+  color: var(--ep-text);
+}
+
+.ep-format-btn.active {
+  background: var(--ep-accent);
+  border-color: var(--ep-accent);
+  color: #1b1a17;
+  font-weight: 500;
+}
+
+.ep-format-btn.icon {
+  flex: 0 0 auto;
+  width: 38px;
+  padding: 6px;
+  font-size: 16px;
+}
+
+.ep-format-reset-btn {
+  background: none;
+  border: 1px solid var(--ep-border);
+  color: var(--ep-muted);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.ep-format-reset-btn:hover {
+  border-color: var(--ep-accent);
+  color: var(--ep-accent);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .ep-toc { width: 200px; }
+  .ep-format-panel { width: 260px; }
+  .ep-topbar { padding: 0 10px; gap: 6px; }
+  .ep-topbar-btn { padding: 4px 8px; font-size: 12px; }
+}
