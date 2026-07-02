@@ -6,6 +6,9 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useChapterStore } from '@/store/useChapterStore';
+import { SearchPanel } from './SearchPanel';
+import { GeneratorPanel } from './GeneratorPanel';
+import { VersioningPanel } from './VersioningPanel';
 
 interface EditorPanelProps {
   projectId: string;
@@ -26,6 +29,9 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
   const [wordCount, setWordCount] = useState(0);
   const [focusMode, setFocusMode] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [generatorOpen, setGeneratorOpen] = useState(false);
+  const [versioningOpen, setVersioningOpen] = useState(false);
   const [headersCollapsed, setHeadersCollapsed] = useState(() => getLocalStorage('inkpad_headers_collapsed', false));
   const [typographyCollapsed, setTypographyCollapsed] = useState(() => getLocalStorage('inkpad_typography_bar_collapsed', false));
 
@@ -289,7 +295,8 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
   }
 
   return (
-    <section className={`editor-panel ${focusMode ? 'focus-mode' : ''}`}>
+    <>
+      <section className={`editor-panel ${focusMode ? 'focus-mode' : ''}`}>
       {/* Empty state (hidden when chapter is active) */}
       <div className="editor-empty" id="editor-empty" style={{ display: 'none' }}>
         <div className="editor-empty-inner">
@@ -332,10 +339,10 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
                 </div>
               </div>
             </div>
-            <button className="read-btn" id="search-btn" title="Cari di semua bab (Ctrl+F)">
+            <button className="read-btn" id="search-btn" title="Cari di semua bab (Ctrl+F)" onClick={() => setSearchOpen(true)}>
               <i className="ti ti-search" aria-hidden="true"></i>
             </button>
-            <button className="read-btn" id="generator-btn" title="AI Generator Tools">
+            <button className="read-btn" id="generator-btn" title="AI Generator Tools" onClick={() => setGeneratorOpen(true)}>
               <i className="ti ti-dice" aria-hidden="true"></i>
             </button>
             <button
@@ -347,7 +354,7 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
             >
               <i className={`ti ti-focus-2 ${focusMode ? 'active' : ''}`} aria-hidden="true"></i>
             </button>
-            <button className="read-btn" id="versioning-btn" title="Riwayat Versi">
+            <button className="read-btn" id="versioning-btn" title="Riwayat Versi" onClick={() => setVersioningOpen(true)}>
               <i className="ti ti-history" aria-hidden="true"></i>
             </button>
             <button className="read-btn" id="theme-toggle-btn" title="Ganti tema">
@@ -434,5 +441,11 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
         />
       </div>
     </section>
+
+      {/* Overlay Panels */}
+      <SearchPanel isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      <GeneratorPanel isOpen={generatorOpen} onClose={() => setGeneratorOpen(false)} />
+      <VersioningPanel isOpen={versioningOpen} onClose={() => setVersioningOpen(false)} />
+    </>
   );
 }

@@ -328,7 +328,7 @@ export const useChapterStore = create<ChapterState>((set, get) => ({
     try {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from('illustrations')
+        .from('chapter_illustrations')
         .select('*')
         .eq('chapter_id', chapterId)
         .order('order_index', { ascending: true });
@@ -365,7 +365,7 @@ export const useChapterStore = create<ChapterState>((set, get) => ({
     
     // Create illustration record
     const { error: createError } = await supabase
-      .from('illustrations')
+      .from('chapter_illustrations')
       .insert([{
         chapter_id: chapterId,
         image_url: isVideo ? null : publicUrl,
@@ -380,14 +380,14 @@ export const useChapterStore = create<ChapterState>((set, get) => ({
 
   deleteIllustration: async (id: string) => {
     const supabase = createClient();
-    const { error } = await supabase.from('illustrations').delete().eq('id', id);
+    const { error } = await supabase.from('chapter_illustrations').delete().eq('id', id);
     if (error) throw error;
     await get().loadIllustrations(get().activeChapter?.id || '');
   },
 
   updateIllustrationCaption: async (id: string, caption: string) => {
     const supabase = createClient();
-    await supabase.from('illustrations').update({ caption }).eq('id', id);
+    await supabase.from('chapter_illustrations').update({ caption }).eq('id', id);
   },
 
   loadNotes: async (chapterId: string) => {
