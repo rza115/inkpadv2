@@ -42,6 +42,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="/css/base.css" />
         <link rel="stylesheet" href="/css/layout.css" />
         <link rel="stylesheet" href="/css/components.css" />
+        <link rel="stylesheet" href="/css/manuscript.css" />
         <link rel="stylesheet" href="/css/splash.css" />
         {/* Apple splash */}
         <link
