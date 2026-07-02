@@ -1,21 +1,36 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useState, FormEvent, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
+type AuthMode = "login" | "signup";
 
 export default function LoginPage() {
-  const scriptsLoaded = useRef(false);
+  // Auth hook - redirects to / if already authenticated
+  const { isLoading: authLoading } = useAuth({ 
+    requireAuth: false, 
+    redirectIfAuthenticated: true 
+  });
+  
+  const router = useRouter();
+  const [mode, setMode] = useState<AuthMode>("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
+  // Load CSS files
   useEffect(() => {
-    if (scriptsLoaded.current) return;
-    scriptsLoaded.current = true;
-
-    // Load CSS files
     const cssFiles = [
       '/css/base.css',
       '/css/layout.css',
       '/css/components.css',
       '/css/splash.css'
     ];
+    
     cssFiles.forEach(href => {
       if (!document.querySelector(`link[href="${href}"]`)) {
         const link = document.createElement('link');
@@ -24,117 +39,75 @@ export default function LoginPage() {
         document.head.appendChild(link);
       }
     });
-
-    // Load Supabase CDN first, then our scripts
-    const scriptUrls = [
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-      "/js/core/supabase-client.js",
-      "/js/core/auth-guard.js",
-      "/js/core/offline-queue.js",
-      "/js/core/pwa-register.js",
-    ];
-
-    let idx = 0;
-    function loadNext() {
-      if (idx >= scriptUrls.length) {
-        // All scripts loaded — init the login form
-        initLoginForm();
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = scriptUrls[idx];
-      script.async = false;
-      script.onload = () => {
-        idx++;
-        loadNext();
-      };
-      script.onerror = () => {
-        idx++;
-        loadNext();
-      };
-      document.body.appendChild(script);
-    }
-    loadNext();
-
-    function initLoginForm() {
-      let mode: "login" | "signup" = "login";
-
-      const form = document.getElementById("auth-form") as HTMLFormElement | null;
-      const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
-      const errorMsg = document.getElementById("error-msg") as HTMLElement | null;
-      const switchLink = document.getElementById("switch-link") as HTMLElement | null;
-      const switchText = document.getElementById("switch-text") as HTMLElement | null;
-      const tagline = document.getElementById("form-tagline") as HTMLElement | null;
-
-      if (!form || !submitBtn || !errorMsg || !switchLink || !switchText || !tagline) return;
-
-      switchLink.addEventListener("click", () => {
-        mode = mode === "login" ? "signup" : "login";
-        if (mode === "signup") {
-          submitBtn.textContent = "Daftar";
-          tagline.textContent = "Buat akun baru";
-          switchText.textContent = "Sudah punya akun?";
-          switchLink.textContent = "Masuk";
-        } else {
-          submitBtn.textContent = "Masuk";
-          tagline.textContent = "Masuk untuk lanjut menulis";
-          switchText.textContent = "Belum punya akun?";
-          switchLink.textContent = "Daftar";
-        }
-        errorMsg.style.display = "none";
-      });
-
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        errorMsg.style.display = "none";
-        errorMsg.style.color = "var(--danger)";
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Memproses…";
-
-        const emailInput = document.getElementById("email") as HTMLInputElement | null;
-        const passwordInput = document.getElementById("password") as HTMLInputElement | null;
-        if (!emailInput || !passwordInput) return;
-
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-
-        const sb = (window as any).supabaseClient;
-        if (!sb) {
-          errorMsg.textContent = "Supabase client belum siap.";
-          errorMsg.style.display = "block";
-          submitBtn.disabled = false;
-          submitBtn.textContent = mode === "login" ? "Masuk" : "Daftar";
-          return;
-        }
-
-        const { error } =
-          mode === "login"
-            ? await sb.auth.signInWithPassword({ email, password })
-            : await sb.auth.signUp({ email, password });
-
-        if (error) {
-          errorMsg.textContent = error.message;
-          errorMsg.style.display = "block";
-          submitBtn.disabled = false;
-          submitBtn.textContent = mode === "login" ? "Masuk" : "Daftar";
-          return;
-        }
-
-        if (mode === "signup") {
-          errorMsg.style.color = "var(--accent)";
-          errorMsg.textContent =
-            "Akun dibuat. Kalau email confirmation aktif, cek inbox dulu sebelum masuk.";
-          errorMsg.style.display = "block";
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Daftar";
-          return;
-        }
-
-        // Redirect to hub
-        window.location.href = "/";
-      });
-    }
   }, []);
+
+  const toggleMode = () => {
+    setMode(mode === "login" ? "signup" : "login");
+    setError("");
+    setIsSuccess(false);
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setIsSuccess(false);
+    setIsSubmitting(true);
+
+    const supabase = createClient();
+
+    try {
+      if (mode === "login") {
+        // Sign in
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+
+        if (signInError) {
+          setError(signInError.message);
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Redirect to home
+        router.push("/");
+      } else {
+        // Sign up
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+        });
+
+        if (signUpError) {
+          setError(signUpError.message);
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Show success message
+        setIsSuccess(true);
+        setIsSubmitting(false);
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan. Coba lagi.");
+      setIsSubmitting(false);
+    }
+  };
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div className="login-wrap" style={{ minHeight: "100dvh" }}>
+        <div className="login-card">
+          <div className="brand">
+            <h1>Inkpad</h1>
+            <span className="cursor" aria-hidden="true"></span>
+          </div>
+          <p className="tagline">Memuat…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-wrap" style={{ minHeight: "100dvh" }}>
@@ -143,34 +116,68 @@ export default function LoginPage() {
           <h1>Inkpad</h1>
           <span className="cursor" aria-hidden="true"></span>
         </div>
-        <p className="tagline" id="form-tagline">
-          Masuk untuk lanjut menulis
+        <p className="tagline">
+          {mode === "login" 
+            ? "Masuk untuk lanjut menulis" 
+            : "Buat akun baru"}
         </p>
 
-        <form id="auth-form">
+        <form onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="email">Email</label>
-            <input type="email" id="email" required autoComplete="email" />
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              disabled={isSubmitting}
+            />
           </div>
           <div className="field">
             <label htmlFor="password">Kata sandi</label>
             <input
               type="password"
               id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="current-password"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
               minLength={6}
+              disabled={isSubmitting}
             />
           </div>
-          <button type="submit" className="primary" id="submit-btn">
-            Masuk
+          <button 
+            type="submit" 
+            className="primary" 
+            disabled={isSubmitting}
+          >
+            {isSubmitting 
+              ? "Memproses…" 
+              : mode === "login" ? "Masuk" : "Daftar"}
           </button>
-          <p className="error" id="error-msg"></p>
+          
+          {error && (
+            <p className="error" style={{ display: "block", color: "var(--danger)" }}>
+              {error}
+            </p>
+          )}
+          
+          {isSuccess && (
+            <p className="error" style={{ display: "block", color: "var(--accent)" }}>
+              Akun dibuat. Kalau email confirmation aktif, cek inbox dulu sebelum masuk.
+            </p>
+          )}
         </form>
 
         <p className="switch">
-          <span id="switch-text">Belum punya akun?</span>
-          <a id="switch-link">Daftar</a>
+          <span>
+            {mode === "login" ? "Belum punya akun?" : "Sudah punya akun?"}
+          </span>{" "}
+          <a onClick={toggleMode} style={{ cursor: "pointer" }}>
+            {mode === "login" ? "Daftar" : "Masuk"}
+          </a>
         </p>
       </div>
     </div>
