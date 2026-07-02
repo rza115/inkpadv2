@@ -1,25 +1,42 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useProjectStore } from "@/store/useProjectStore";
+import { Nav } from "@/components/Nav";
+import { Loading } from "@/components/ui";
+import { ProjectCard, NewProjectCard } from "@/components/hub/ProjectCard";
+import { ProjectModal, type ProjectFormData } from "@/components/hub/ProjectModal";
+import { CoverModal } from "@/components/hub/CoverModal";
+import type { Project, SortKey } from "@/types/project";
 
 export default function HubPage() {
-  const initialized = useRef(false);
+  const { isLoading: authLoading } = useAuth();
+  const { 
+    projects, 
+    isLoading: projectsLoading, 
+    fetchProjects, 
+    createProject, 
+    updateProject, 
+    deleteProject,
+    currentSort,
+    setSort,
+    getSortedProjects 
+  } = useProjectStore();
 
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [coverEditProject, setCoverEditProject] = useState<Project | null>(null);
+
+  // Load CSS files
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-
-    // Set body attributes that nav.js and pageInit.js expect
-    document.body.dataset.layout = "hub";
-    document.body.dataset.page = "hub";
-    document.body.dataset.title = "Inkpad";
-
-    // Load CSS files
     const cssFiles = [
       '/css/base.css',
       '/css/layout.css',
       '/css/components.css'
     ];
+    
     cssFiles.forEach(href => {
       if (!document.querySelector(`link[href="${href}"]`)) {
         const link = document.createElement('link');
@@ -28,48 +45,91 @@ export default function HubPage() {
         document.head.appendChild(link);
       }
     });
-
-    // Load scripts in order — Supabase CDN first
-    const scriptUrls = [
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-      "/js/core/supabase-client.js",
-      "/js/core/auth-guard.js",
-      "/js/core/project-context.js",
-      "/js/core/offline-queue.js",
-      "/js/core/pwa-register.js",
-      "/js/core/nav.js",
-      "/js/core/pageInit.js",
-      "/js/core/storage.js",
-      "/js/modules/projects.js",
-      "/js/modules/hub.js",
-    ];
-
-    let idx = 0;
-    function loadNext() {
-      if (idx >= scriptUrls.length) return;
-      const script = document.createElement("script");
-      script.src = scriptUrls[idx];
-      script.async = false;
-      script.onload = () => {
-        idx++;
-        loadNext();
-      };
-      script.onerror = () => {
-        idx++;
-        loadNext();
-      };
-      document.body.appendChild(script);
-    }
-    loadNext();
   }, []);
+
+  // Fetch projects on mount
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  // Handlers
+  const handleNewProject = () => {
+    setEditingProject(null);
+    setIsProjectModalOpen(true);
+  };
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setIsProjectModalOpen(true);
+  };
+
+  const handleEditCover = (project: Project) => {
+    setCoverEditProject(project);
+    setIsCoverModalOpen(true);
+  };
+
+  const handleDeleteProject = async (project: Project) => {
+    try {
+      await deleteProject(project.id);
+    } catch (error: any) {
+      alert('Gagal menghapus: ' + error.message);
+    }
+  };
+
+  const handleSaveProject = async (data: ProjectFormData) => {
+    // Ensure cover_url is string | null (not undefined)
+    const projectData = {
+      ...data,
+      cover_url: data.cover_url ?? null
+    };
+    
+    if (editingProject) {
+      await updateProject(editingProject.id, projectData);
+    } else {
+      await createProject(projectData);
+    }
+  };
+
+  const handleSaveCover = async (cover_url: string | null) => {
+    if (coverEditProject) {
+      await updateProject(coverEditProject.id, { cover_url });
+      await fetchProjects(); // Refresh to show updated cover
+    }
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSort(e.target.value as SortKey);
+  };
+
+  const sortedProjects = getSortedProjects();
+
+  // Show loading while authenticating
+  if (authLoading) {
+    return (
+      <>
+        <Nav layout="hub" title="Inkpad" />
+        <main id="page-main">
+          <Loading message="Memuat…" />
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
+      <Nav layout="hub" title="Inkpad" />
+      
       <main id="page-main">
         <div className="hub-shell">
+          {/* Toolbar with Sort */}
           <div className="hub-toolbar">
             <label htmlFor="hub-sort">Urutkan</label>
-            <select id="hub-sort" className="hub-sort-select">
+            <select 
+              id="hub-sort" 
+              className="hub-sort-select"
+              value={currentSort}
+              onChange={handleSortChange}
+            >
               <option value="updated_desc">Terbaru diubah</option>
               <option value="title_asc">Judul (A–Z)</option>
               <option value="title_desc">Judul (Z–A)</option>
@@ -80,79 +140,49 @@ export default function HubPage() {
               <option value="created_asc">Terlama dibuat</option>
             </select>
           </div>
-          <div className="hub-grid" id="project-grid"></div>
+
+          {/* Project Grid */}
+          <div className="hub-grid">
+            <NewProjectCard onClick={handleNewProject} />
+            
+            {projectsLoading && projects.length === 0 && (
+              <p className="muted">Memuat…</p>
+            )}
+            
+            {!projectsLoading && sortedProjects.length === 0 && (
+              <p className="muted empty-state">
+                Belum ada novel. Mulai yang pertama lewat kartu di atas.
+              </p>
+            )}
+            
+            {sortedProjects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onEdit={handleEditProject}
+                onEditCover={handleEditCover}
+                onDelete={handleDeleteProject}
+              />
+            ))}
+          </div>
         </div>
       </main>
 
-      {/* Create/Edit modal */}
-      <div className="modal-overlay" id="create-modal">
-        <div className="modal-card">
-          <h2 id="project-modal-title">Novel baru</h2>
-          <form id="create-form">
-            <div className="cover-upload-row">
-              <label className="cover-preview" id="cover-preview" htmlFor="project-cover">
-                <i className="ti ti-photo-plus" aria-hidden="true"></i>
-                <span>Cover (opsional)</span>
-              </label>
-              <input type="file" id="project-cover" accept="image/*" hidden />
-            </div>
-            <div className="field">
-              <label htmlFor="project-title">Judul</label>
-              <input type="text" id="project-title" required />
-            </div>
-            <div className="field">
-              <label htmlFor="project-genre">Genre (opsional)</label>
-              <input type="text" id="project-genre" placeholder="Fantasi, Romance, dst" />
-            </div>
-            <div className="field">
-              <label htmlFor="project-status">Status</label>
-              <select id="project-status">
-                <option value="ongoing">Ongoing</option>
-                <option value="hiatus">Hiatus</option>
-                <option value="completed">Selesai</option>
-              </select>
-            </div>
-            <p className="error" id="create-error" style={{ display: "none", color: "var(--danger)", fontSize: 13 }}></p>
-            <div className="modal-actions">
-              <button type="button" className="ghost" id="modal-close">
-                Batal
-              </button>
-              <button type="submit" className="primary" id="project-submit-btn">
-                Buat
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+      {/* Project Create/Edit Modal */}
+      <ProjectModal
+        isOpen={isProjectModalOpen}
+        onClose={() => setIsProjectModalOpen(false)}
+        onSave={handleSaveProject}
+        editingProject={editingProject}
+      />
 
-      {/* Cover edit modal */}
-      <div className="modal-overlay" id="cover-modal">
-        <div className="modal-card">
-          <h2 id="cover-modal-title">Ubah cover</h2>
-          <p className="cover-modal-hint" id="cover-modal-hint">
-            Pilih gambar baru untuk cover novel.
-          </p>
-          <div className="cover-upload-row">
-            <label className="cover-preview" id="edit-cover-preview" htmlFor="edit-cover-input">
-              <i className="ti ti-photo-plus" aria-hidden="true"></i>
-              <span>Pilih gambar</span>
-            </label>
-            <input type="file" id="edit-cover-input" accept="image/*" hidden />
-          </div>
-          <button type="button" className="cover-remove-btn" id="cover-remove-btn" disabled>
-            Hapus cover
-          </button>
-          <p className="error" id="cover-error" style={{ display: "none", color: "var(--danger)", fontSize: 13, marginTop: 12 }}></p>
-          <div className="modal-actions">
-            <button type="button" className="ghost" id="cover-modal-close">
-              Batal
-            </button>
-            <button type="button" className="primary" id="cover-save-btn" disabled>
-              Simpan
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Cover Edit Modal */}
+      <CoverModal
+        isOpen={isCoverModalOpen}
+        onClose={() => setIsCoverModalOpen(false)}
+        onSave={handleSaveCover}
+        project={coverEditProject}
+      />
     </>
   );
 }
