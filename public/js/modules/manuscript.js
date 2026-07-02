@@ -233,12 +233,12 @@ function initManuscriptPage() {
   }
 
   // ── AI Generator Init ──
-  if (InkpadRandom) {
-    InkpadRandom.init();
+  if (window.InkpadRandom) {
+    window.InkpadRandom.init();
     const generatorBtn = document.getElementById('generator-btn');
     if (generatorBtn) {
       generatorBtn.addEventListener('click', () => {
-        InkpadRandom.open();
+        window.InkpadRandom.open();
       });
     }
 
@@ -262,12 +262,12 @@ function initManuscriptPage() {
   }
 
   // ── Global Search Init ──
-  if (InkpadSearch) {
-    InkpadSearch.init();
+  if (window.InkpadSearch) {
+    window.InkpadSearch.init();
     const searchBtn = document.getElementById('search-btn');
     if (searchBtn) {
       searchBtn.addEventListener('click', () => {
-        InkpadSearch.open(chapters);
+        window.InkpadSearch.open(chapters);
       });
     }
 
@@ -305,8 +305,8 @@ function initManuscriptPage() {
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
       e.preventDefault();
-      if (InkpadSearch) {
-        InkpadSearch.open(chapters);
+      if (window.InkpadSearch) {
+        window.InkpadSearch.open(chapters);
       }
       return;
     }
