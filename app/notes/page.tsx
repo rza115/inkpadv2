@@ -1,113 +1,195 @@
-"use client";
+/**
+ * Notes Page
+ * Manage quick notes with optional assignment to chapters, characters, or world entries
+ */
+'use client';
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useNotesStore } from '@/store/useNotesStore';
+import { createClient } from '@/lib/supabase/client';
+import { Button, Loading } from '@/components/ui';
+import { NoteCard } from '@/components/notes/NoteCard';
+import { NoteModal } from '@/components/notes/NoteModal';
+import type { Note } from '@/types/note';
 
-export default function NotesPage() {
-  const initialized = useRef(false);
+interface ChapterOption {
+  id: string;
+  title: string;
+}
+
+interface Character {
+  id: string;
+  name: string;
+}
+
+interface WorldEntry {
+  id: string;
+  title: string;
+}
+
+function NotesContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get('project');
+  const { notes, loading, loadNotes, createNote, updateNote, deleteNote } = useNotesStore();
+  
+  const [chapters, setChapters] = useState<ChapterOption[]>([]);
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [worldEntries, setWorldEntries] = useState<WorldEntry[]>([]);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-
-    // Set body attributes that nav.js and pageInit.js expect
-    document.body.dataset.layout = "project";
-    document.body.dataset.page = "notes";
-    document.body.dataset.title = "Memuat…";
-
-    // Load CSS files
-    const cssFiles = [
-      '/css/base.css',
-      '/css/layout.css',
-      '/css/components.css'
-    ];
-    cssFiles.forEach(href => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-      }
-    });
-
-    // Load scripts in order
-    const scriptUrls = [
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-      "/js/core/supabase-client.js",
-      "/js/core/project-context.js",
-      "/js/core/offline-queue.js",
-      "/js/core/pwa-register.js",
-      "/js/core/nav.js",
-      "/js/core/pageInit.js",
-      "/js/modules/projects.js",
-      "/js/modules/chapters.js",
-      "/js/modules/characters.js",
-      "/js/modules/worldbuilding.js",
-      "/js/modules/notes.js",
-      "/js/modules/notes-page.js",
-    ];
-
-    let idx = 0;
-    function loadNext() {
-      if (idx >= scriptUrls.length) return;
-      const script = document.createElement("script");
-      script.src = scriptUrls[idx];
-      script.async = false;
-      script.onload = () => {
-        idx++;
-        loadNext();
-      };
-      script.onerror = () => {
-        idx++;
-        loadNext();
-      };
-      document.body.appendChild(script);
+    if (!projectId) {
+      router.push('/');
+      return;
     }
-    loadNext();
-  }, []);
+
+    loadAllData();
+  }, [projectId]);
+
+  const loadAllData = async () => {
+    if (!projectId) return;
+
+    try {
+      setLoadError('');
+      const supabase = createClient();
+
+      // Load notes, chapters, characters, and world entries in parallel
+      const [notesResult, chaptersResult, charactersResult, worldResult] = await Promise.all([
+        loadNotes(projectId).catch((err) => {
+          console.error('Failed to load notes:', err);
+          return null;
+        }),
+        supabase
+          .from('chapters')
+          .select('id, title')
+          .eq('project_id', projectId)
+          .order('order_index', { ascending: true }),
+        supabase
+          .from('characters')
+          .select('id, name')
+          .eq('project_id', projectId)
+          .order('name', { ascending: true }),
+        supabase
+          .from('world_entries')
+          .select('id, title')
+          .eq('project_id', projectId)
+          .order('title', { ascending: true }),
+      ]);
+
+      if (chaptersResult.error) throw chaptersResult.error;
+      if (charactersResult.error) throw charactersResult.error;
+      if (worldResult.error) throw worldResult.error;
+
+      setChapters(chaptersResult.data || []);
+      setCharacters(charactersResult.data || []);
+      setWorldEntries(worldResult.data || []);
+    } catch (err: any) {
+      setLoadError(err.message || 'Gagal memuat data');
+    }
+  };
+
+  const handleOpenModal = (note?: Note) => {
+    setEditingNote(note || null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingNote(null);
+  };
+
+  const handleSave = async (data: {
+    content: string;
+    assigned_chapter_id: string | null;
+    assigned_character_id: string | null;
+    assigned_world_id: string | null;
+  }) => {
+    if (!projectId) return;
+
+    if (editingNote) {
+      await updateNote(editingNote.id, data);
+    } else {
+      await createNote(projectId, data);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!editingNote) return;
+    await deleteNote(editingNote.id);
+  };
+
+  if (!projectId) {
+    return (
+      <div style={{ padding: '24px' }}>
+        <p className="muted">
+          Tidak ada novel yang dipilih. Kembali ke <Link href="/">Project Hub</Link>.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
       <main id="page-main">
         <div className="notes-shell">
           <div className="notes-toolbar">
-            <button className="ghost" id="new-note-btn"><i className="ti ti-plus" aria-hidden="true"></i> Catatan baru</button>
+            <Button variant="ghost" onClick={() => handleOpenModal()}>
+              <i className="ti ti-plus" aria-hidden="true"></i> Catatan baru
+            </Button>
           </div>
-          <div className="notes-list" id="notes-list"></div>
+
+          {loading && <Loading />}
+          
+          {loadError && (
+            <p className="empty-msg" style={{ color: 'var(--danger)' }}>
+              {loadError}
+            </p>
+          )}
+
+          {!loading && !loadError && (
+            <div className="notes-list">
+              {notes.length === 0 ? (
+                <p className="empty-msg">
+                  Belum ada catatan. Buang ide random di sini dulu, rapiin belakangan.
+                </p>
+              ) : (
+                notes.map((note) => (
+                  <NoteCard
+                    key={note.id}
+                    note={note}
+                    onClick={() => handleOpenModal(note)}
+                  />
+                ))
+              )}
+            </div>
+          )}
         </div>
       </main>
 
-      <div className="modal-overlay" id="note-modal">
-        <div className="modal-card">
-          <h2 id="note-modal-title">Catatan baru</h2>
-          <form id="note-form">
-            <div className="field">
-              <label htmlFor="note-content">Isi catatan</label>
-              <textarea id="note-content" rows={5} required placeholder="Tulis ide, reminders, atau apapun…"></textarea>
-            </div>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>Assign ke (opsional, pilih salah satu)</p>
-            <div className="assign-row">
-              <div className="field">
-                <label htmlFor="note-chapter">Bab</label>
-                <select id="note-chapter"><option value="">—</option></select>
-              </div>
-              <div className="field">
-                <label htmlFor="note-character">Karakter</label>
-                <select id="note-character"><option value="">—</option></select>
-              </div>
-            </div>
-            <div className="field" style={{ marginTop: '8px' }}>
-              <label htmlFor="note-world">World entry</label>
-              <select id="note-world"><option value="">—</option></select>
-            </div>
-            <p style={{ fontSize: '13px', color: 'var(--danger)', display: 'none' }} id="note-error"></p>
-            <div className="modal-actions">
-              <button type="button" className="ghost" id="note-delete-btn" style={{ display: 'none' }}>Hapus</button>
-              <button type="button" className="ghost" id="note-close">Batal</button>
-              <button type="submit" className="primary">Simpan</button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <NoteModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        note={editingNote}
+        chapters={chapters}
+        characters={characters}
+        worldEntries={worldEntries}
+        onSave={handleSave}
+        onDelete={editingNote ? handleDelete : undefined}
+      />
     </>
+  );
+}
+
+export default function NotesPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <NotesContent />
+    </Suspense>
   );
 }
