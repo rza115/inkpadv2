@@ -93,8 +93,8 @@ function wireReaderChrome() {
   backBtn?.addEventListener('click', () => {
     const projectId = window.InkpadProject?.getActiveProjectId();
     window.location.href = projectId
-      ? `/pages/manuscript.html?project=${projectId}`
-      : '/index.html';
+      ? `/manuscript?project=${projectId}`
+      : '/';
   });
 
   function syncTocBackdrop() {
@@ -214,7 +214,7 @@ async function initReader() {
   if (!column) return;
 
   if (!projectId) {
-    column.innerHTML = '<p class="r-loading">Nggak ada novel yang dipilih. <a href="/index.html" style="color:var(--accent)">Balik ke Hub</a>.</p>';
+    column.innerHTML = '<p class="r-loading">Nggak ada novel yang dipilih. <a href="/" style="color:var(--accent)">Balik ke Hub</a>.</p>';
     return;
   }
 
@@ -511,9 +511,9 @@ async function initReader() {
         const type = link.dataset.type;
         const id = link.dataset.id;
         if (type === 'character') {
-          window.location.href = `/pages/characters.html?project=${projectId}&open=${id}`;
+          window.location.href = `/characters?project=${projectId}&open=${id}`;
         } else if (type === 'world') {
-          window.location.href = `/pages/worldbuilding.html?project=${projectId}&open=${id}`;
+          window.location.href = `/worldbuilding?project=${projectId}&open=${id}`;
         }
       });
     });

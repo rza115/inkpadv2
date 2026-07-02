@@ -94,7 +94,7 @@ function initEpubLibraryPage() {
     card.insertBefore(delBtn, card.querySelector('.epub-book-title'));
 
     card.addEventListener('click', () => {
-      window.location.href = `/pages/epub-reader.html?id=${book.id}`;
+      window.location.href = `/epub-reader?id=${book.id}`;
     });
 
     return card;

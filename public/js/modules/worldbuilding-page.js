@@ -49,7 +49,7 @@ function initWorldPage() {
     const id = link.dataset.id;
     closeModal();
     if (type === 'character') {
-      window.location.href = `/pages/characters.html?project=${projectId}&open=${id}`;
+      window.location.href = `/characters?project=${projectId}&open=${id}`;
     } else if (type === 'world') {
       const entry = entries.find((en) => en.id === id);
       if (entry) openModal(entry);

@@ -393,7 +393,7 @@ function initManuscriptPage() {
 
   if (openNotesPageBtn) {
     openNotesPageBtn.addEventListener('click', () => {
-      window.location.href = `/pages/notes.html?project=${projectId}`;
+      window.location.href = `/notes?project=${projectId}`;
     });
   }
 
@@ -884,7 +884,7 @@ function initManuscriptPage() {
 
     contextWorldPicker.innerHTML = '';
     if (allWorldEntries.length === 0) {
-      contextWorldPicker.innerHTML = `<p class="context-picker-empty">Belum ada entry. <a href="/pages/worldbuilding.html?project=${projectId}">Bikin di sini</a>.</p>`;
+      contextWorldPicker.innerHTML = `<p class="context-picker-empty">Belum ada entry. <a href="/worldbuilding?project=${projectId}">Bikin di sini</a>.</p>`;
     } else if (available.length === 0) {
       contextWorldPicker.innerHTML = '<p class="context-picker-empty">Semua entry udah dipasang di bab ini.</p>';
     } else {

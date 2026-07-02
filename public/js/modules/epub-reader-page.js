@@ -9,7 +9,7 @@ function bootEpubReader() {
       loadingEl.innerHTML = `
         <i class="ti ti-alert-circle" style="font-size:28px;color:var(--ep-accent);" aria-hidden="true"></i>
         <span style="text-align:center;max-width:280px;">Gagal membuka reader: ${err.message}</span>
-        <a href="/pages/epub-library.html"
+        <a href="/epub-library"
            style="color:var(--ep-accent);font-size:13px;margin-top:4px;">
           ← Balik ke Library
         </a>`;
@@ -112,7 +112,7 @@ async function initEpubReader() {
       loadingEl.innerHTML = `
         <i class="ti ti-alert-circle" style="font-size:28px;color:var(--ep-accent);" aria-hidden="true"></i>
         <span style="text-align:center;max-width:280px;">${msg}</span>
-        <a href="/pages/epub-library.html"
+        <a href="/epub-library"
            style="color:var(--ep-accent);font-size:13px;margin-top:4px;">
           ← Balik ke Library
         </a>`;
@@ -176,7 +176,7 @@ async function initEpubReader() {
   updateFormatUI();
 
   // ── controls ──
-  backBtn.addEventListener('click', () => { window.location.href = '/pages/epub-library.html'; });
+  backBtn.addEventListener('click', () => { window.location.href = '/epub-library'; });
   tocBtn.addEventListener('click', () => tocEl.classList.toggle('collapsed'));
   formatBtn.addEventListener('click', () => formatPanel.classList.toggle('collapsed'));
 
