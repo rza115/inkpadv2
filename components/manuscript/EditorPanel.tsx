@@ -11,6 +11,13 @@ interface EditorPanelProps {
   projectId: string;
 }
 
+function getLocalStorage(key: string, defaultValue: boolean): boolean {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(key) === 'true';
+  }
+  return defaultValue;
+}
+
 export function EditorPanel({ projectId }: EditorPanelProps) {
   const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt } = useChapterStore();
   
@@ -19,28 +26,32 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
   const [wordCount, setWordCount] = useState(0);
   const [focusMode, setFocusMode] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
-  const [headersCollapsed, setHeadersCollapsed] = useState<boolean>(false);
-  const [typographyCollapsed, setTypographyCollapsed] = useState<boolean>(false);
+  const [headersCollapsed, setHeadersCollapsed] = useState(() => getLocalStorage('inkpad_headers_collapsed', false));
+  const [typographyCollapsed, setTypographyCollapsed] = useState(() => getLocalStorage('inkpad_typography_bar_collapsed', false));
 
   const titleSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const contentSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const activeChapterIdRef = useRef<string | null>(null);
+  const contentRef = useRef<string>('');
+  const titleRefValue = useRef<string>('');
 
-  // Load saved states from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setHeadersCollapsed(localStorage.getItem('inkpad_headers_collapsed') === 'true');
-      setTypographyCollapsed(localStorage.getItem('inkpad_typography_bar_collapsed') === 'true');
-    }
-  }, []);
+  // Keep refs in sync with state for use in callbacks
+  useEffect(() => { contentRef.current = content; }, [content]);
+  useEffect(() => { titleRefValue.current = title; }, [title]);
 
   // Update local state when active chapter changes
   useEffect(() => {
     if (activeChapter) {
-      setTitle(activeChapter.title || '');
-      setContent(activeChapter.content || '');
-      setWordCount(activeChapter.word_count || 0);
+      if (activeChapter.id !== activeChapterIdRef.current) {
+        activeChapterIdRef.current = activeChapter.id;
+        setTitle(activeChapter.title || '');
+        setContent(activeChapter.content || '');
+        setWordCount(activeChapter.word_count || 0);
+      }
     } else {
+      activeChapterIdRef.current = null;
       setTitle('');
       setContent('');
       setWordCount(0);
@@ -82,31 +93,34 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
     }, 700);
   };
 
-  // Force save
+  // Force save - read from refs to avoid stale closure
   const forceSave = useCallback(async () => {
     if (!activeChapter) return;
     clearTimeout(titleSaveTimer.current);
     clearTimeout(contentSaveTimer.current);
-    const wc = countWords(content);
+    const currentContent = contentRef.current;
+    const currentTitle = titleRefValue.current;
+    const wc = countWords(currentContent);
     await updateChapter(activeChapter.id, {
-      title: title.trim() || 'Tanpa judul',
-      content,
+      title: currentTitle.trim() || 'Tanpa judul',
+      content: currentContent,
       word_count: wc,
     });
-  }, [activeChapter, content, title, updateChapter]);
+  }, [activeChapter, updateChapter]);
 
-  // Toolbar actions
+  // Toolbar actions - read from textarea directly to avoid stale closure
   const applyToolbar = useCallback((type: string) => {
     const ta = textareaRef.current;
     if (!ta) return;
     
+    const currentContent = ta.value;
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
-    const before = content.substring(0, start);
-    const after = content.substring(end);
-    const selected = content.substring(start, end);
+    const before = currentContent.substring(0, start);
+    const after = currentContent.substring(end);
+    const selected = currentContent.substring(start, end);
     
-    let newContent = content;
+    let newContent = currentContent;
     
     if (type === 'bold') {
       newContent = before + '**' + selected + '**' + after;
@@ -137,7 +151,7 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
         ta.setSelectionRange(start + 2, end + 2);
       }
     }, 0);
-  }, [content, activeChapter, updateChapter, updateWordCount]);
+  }, [activeChapter, updateChapter, updateWordCount]);
 
   const toggleFocusMode = useCallback(() => {
     setFocusMode((prev) => {
@@ -198,17 +212,20 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [forceSave, applyToolbar, toggleFocusMode, focusMode]);
 
-  // Export
+  // Export - read from refs to avoid stale closure
   const exportChapterMarkdown = () => {
     if (!activeChapter) return;
-    const md = `# ${title}\n\n${content}`;
-    downloadText(md, `${safeFilename(title)}.md`);
+    const currentTitle = titleRefValue.current;
+    const currentContent = contentRef.current;
+    const md = `# ${currentTitle}\n\n${currentContent}`;
+    downloadText(md, `${safeFilename(currentTitle)}.md`);
   };
 
   const exportAllMarkdown = async () => {
     if (chapters.length === 0) return;
     await forceSave();
-    const projectTitle = title || 'Novel';
+    const currentTitle = titleRefValue.current;
+    const projectTitle = currentTitle || 'Novel';
     const md = chapters.map((ch) => {
       return `# ${ch.title || 'Tanpa Judul'}\n\n${ch.content || ''}`;
     }).join('\n\n---\n\n');
@@ -287,6 +304,7 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
       <div className="editor-active" id="editor-active" style={{ display: 'flex' }}>
         <div className="editor-header">
           <input
+            ref={titleRef}
             type="text"
             id="chapter-title-input"
             className="chapter-title-input"

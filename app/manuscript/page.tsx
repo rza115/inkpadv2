@@ -41,26 +41,26 @@ function ManuscriptContent() {
     loadAllWorldEntries(projectId);
   }, [projectId, loadChapters, loadAllCharacters, loadAllWorldEntries]);
 
-  // Auto-select last chapter or first chapter after loading
+  // Auto-select first chapter after loading (if no last chapter saved)
   useEffect(() => {
-    if (chapters.length > 0 && !activeChapter) {
-      // Check for last saved chapter
-      try {
-        const key = `inkpad:manuscript:lastChapter:${projectId}`;
-        const saved = localStorage.getItem(key);
-        if (saved) {
-          const lastChapter = JSON.parse(saved);
-          const exists = chapters.find(c => c.id === lastChapter.chapterId);
-          if (exists) {
-            // Don't auto-select, show empty state with continue button
-            return;
-          }
+    if (chapters.length === 0 || activeChapter) return;
+    
+    // Check for last saved chapter
+    try {
+      const key = `inkpad:manuscript:lastChapter:${projectId}`;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const lastChapter = JSON.parse(saved);
+        const exists = chapters.find(c => c.id === lastChapter.chapterId);
+        if (exists) {
+          // Don't auto-select, show empty state with continue button
+          return;
         }
-      } catch (_) {}
-      
-      // Auto-select first chapter
-      selectChapter(chapters[0].id);
-    }
+      }
+    } catch (_) {}
+    
+    // Auto-select first chapter
+    selectChapter(chapters[0].id);
   }, [chapters, activeChapter, selectChapter, projectId]);
 
   if (authLoading) {
