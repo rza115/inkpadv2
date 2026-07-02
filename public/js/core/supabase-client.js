@@ -5,8 +5,8 @@
 // <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 // <script src="js/core/supabase-client.js"></script>
 
-const SUPABASE_URL = 'https://cijaiymfeidphxhxynbq.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_mi1r-XvYQJz8vNkYlTW5PA_MuRJukG3';
+const SUPABASE_URL = 'https://egslvksdfmiucbrlxfzy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_76znthPdbJWYMGnk1UVcvg_rX8Igjbi';
 
 if (typeof supabase === 'undefined') {
   console.error('Supabase SDK belum dimuat. Pastikan script CDN supabase-js ada sebelum supabase-client.js');

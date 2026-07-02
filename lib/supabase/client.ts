@@ -4,9 +4,9 @@
  */
 import { createBrowserClient } from '@supabase/ssr';
 
-// Supabase configuration
-const SUPABASE_URL = 'https://eqfgulhknfmhkhybatpm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxZmd1bGhrbmZtaGtoeWJhdHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzMzYxNTYsImV4cCI6MjA1NDkxMjE1Nn0.hgI7h9WmXzSFV_B-aJmJkMkQUg2X0B9n_OwJkUFnfWw';
+// Supabase configuration — uses env vars from .env.local
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export function createClient() {
   return createBrowserClient(
