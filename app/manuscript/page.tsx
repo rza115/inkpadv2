@@ -14,8 +14,9 @@ export default function ManuscriptPage() {
     document.body.dataset.page = "manuscript";
     document.body.dataset.title = "Memuat…";
 
-    // Load scripts in order
+    // Load scripts in order — Supabase CDN first
     const scriptUrls = [
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
       "/js/core/supabase-client.js",
       "/js/core/auth-guard.js",
       "/js/core/project-context.js",
@@ -38,7 +39,6 @@ export default function ManuscriptPage() {
       "/js/modules/ai-polish.js",
       "/js/modules/theme.js",
       "/js/modules/versioning.js",
-      // type="module" scripts — loaded as regular scripts for simplicity
       "/js/modules/global-search.js",
       "/js/modules/random-generator.js",
       "/js/modules/manuscript.js",

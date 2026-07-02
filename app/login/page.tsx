@@ -9,27 +9,36 @@ export default function LoginPage() {
     if (scriptsLoaded.current) return;
     scriptsLoaded.current = true;
 
-    const scripts = [
+    // Load Supabase CDN first, then our scripts
+    const scriptUrls = [
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
       "/js/core/supabase-client.js",
       "/js/core/auth-guard.js",
       "/js/core/offline-queue.js",
       "/js/core/pwa-register.js",
     ];
 
-    let loaded = 0;
-    scripts.forEach((src) => {
+    let idx = 0;
+    function loadNext() {
+      if (idx >= scriptUrls.length) {
+        // All scripts loaded — init the login form
+        initLoginForm();
+        return;
+      }
       const script = document.createElement("script");
-      script.src = src;
+      script.src = scriptUrls[idx];
       script.async = false;
       script.onload = () => {
-        loaded++;
-        if (loaded === scripts.length) {
-          // All core scripts loaded — now init the login form logic
-          initLoginForm();
-        }
+        idx++;
+        loadNext();
+      };
+      script.onerror = () => {
+        idx++;
+        loadNext();
       };
       document.body.appendChild(script);
-    });
+    }
+    loadNext();
 
     function initLoginForm() {
       let mode: "login" | "signup" = "login";

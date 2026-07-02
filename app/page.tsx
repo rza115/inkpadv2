@@ -14,8 +14,9 @@ export default function HubPage() {
     document.body.dataset.page = "hub";
     document.body.dataset.title = "Inkpad";
 
-    // Load scripts in order
+    // Load scripts in order — Supabase CDN first
     const scriptUrls = [
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
       "/js/core/supabase-client.js",
       "/js/core/auth-guard.js",
       "/js/core/project-context.js",

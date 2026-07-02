@@ -49,8 +49,6 @@ export default function RootLayout({
           href="/assets/splash/splash.png"
           media="(orientation: portrait)"
         />
-        {/* Supabase SDK — loaded globally for all pages */}
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" />
       </head>
       <body className="min-h-full">{children}</body>
     </html>
