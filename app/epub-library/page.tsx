@@ -4,7 +4,7 @@
  */
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/Nav';
 import { BookGrid, UploadProgress } from '@/components/epub';
@@ -69,44 +69,8 @@ export default function EpubLibraryPage() {
     fileInputRef.current?.click();
   };
 
-  // Handle file selection
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
-    const fileArray = Array.from(files);
-    e.target.value = ''; // Reset input
-    
-    await processFiles(fileArray);
-  };
-
-  // Handle drag & drop
-  useEffect(() => {
-    const handleDragOver = (e: DragEvent) => {
-      e.preventDefault();
-    };
-
-    const handleDrop = (e: DragEvent) => {
-      e.preventDefault();
-      const files = Array.from(e.dataTransfer?.files || []).filter(
-        (f) => f.name.toLowerCase().endsWith('.epub') || f.type === 'application/epub+zip'
-      );
-      if (files.length > 0) {
-        processFiles(files);
-      }
-    };
-
-    document.addEventListener('dragover', handleDragOver);
-    document.addEventListener('drop', handleDrop);
-
-    return () => {
-      document.removeEventListener('dragover', handleDragOver);
-      document.removeEventListener('drop', handleDrop);
-    };
-  }, []);
-
   // Process uploaded files
-  const processFiles = async (files: File[]) => {
+  const processFiles = useCallback(async (files: File[]) => {
     if (!user) {
       alert('Anda harus login untuk upload');
       return;
@@ -198,7 +162,43 @@ export default function EpubLibraryPage() {
       setUploadState(prev => ({ ...prev, isVisible: false }));
       loadBooks(); // Refresh book list
     }, 400);
+  }, [user, loadBooks]);
+
+  // Handle file selection
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const fileArray = Array.from(files);
+    e.target.value = ''; // Reset input
+    
+    await processFiles(fileArray);
   };
+
+  // Handle drag & drop
+  useEffect(() => {
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      const files = Array.from(e.dataTransfer?.files || []).filter(
+        (f) => f.name.toLowerCase().endsWith('.epub') || f.type === 'application/epub+zip'
+      );
+      if (files.length > 0) {
+        processFiles(files);
+      }
+    };
+
+    document.addEventListener('dragover', handleDragOver);
+    document.addEventListener('drop', handleDrop);
+
+    return () => {
+      document.removeEventListener('dragover', handleDragOver);
+      document.removeEventListener('drop', handleDrop);
+    };
+  }, [processFiles]);
 
   // Handle book deletion
   const handleDeleteBook = async (id: string) => {

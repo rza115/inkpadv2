@@ -109,7 +109,7 @@ function EpubReaderContent() {
     [bookId]
   );
 
-  // Initialize reader
+  // Initialize reader (only when bookUrl is available)
   const {
     toc,
     currentLocation,
@@ -123,7 +123,7 @@ function EpubReaderContent() {
     updateTheme,
     updateFlow,
   } = useEpubReader({
-    bookUrl,
+    bookUrl: bookUrl || '', // Ensure non-empty string
     containerId: 'ep-viewer-wrap',
     initialCfi: savedCfi,
     fontSize,

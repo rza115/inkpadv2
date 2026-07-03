@@ -90,7 +90,8 @@ export function useEpubReader({
 
   // Initialize epub.js
   useEffect(() => {
-    if (!bookUrl || !containerId || initializingRef.current) return;
+    // Guard: Skip if no valid bookUrl or already initializing
+    if (!bookUrl || bookUrl.trim() === '' || !containerId || initializingRef.current) return;
     
     initializingRef.current = true;
     setIsLoading(true);
