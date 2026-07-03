@@ -1,20 +1,50 @@
-# Character Page CSS Fix
+# CSS Selector Fixes - Multiple Pages
 
-## Issue
-The character page CSS was broken due to two mismatches between the legacy CSS and the Next.js implementation:
+## Overview
+Fixed CSS issues across multiple pages where CSS selectors didn't match the component structure after Next.js migration.
 
-1. **CSS Selector Mismatch**: The CSS defined styles for `.char-grid` (class), but the component used `#character-grid` (ID)
-2. **Missing data-page Attribute**: The CSS selectors used `body[data-page="characters"]` but Next.js wasn't setting this attribute
+## Issues Found
+
+### 1. Character Page
+**Problem**: 
+- CSS used `.char-grid` (class) but component used `#character-grid` (ID)
+- Missing `data-page="characters"` attribute
+
+**Fix**:
+- Added `#character-grid` selector alongside `.char-grid` in CSS
+- Added global data-page script in layout.tsx
+
+### 2. Worldbuilding Page  
+**Problem**:
+- CSS used `.world-groups` (class) but component used `#world-groups` (ID)
+
+**Fix**:
+- Changed component to use className instead of ID: `<div className="world-groups">`
+
+### 3. Manuscript Page
+**Status**: ✅ Already working correctly
+- Sets `data-page` attribute directly in component
+- All selectors match properly
+
+### 4. Plot Page
+**Status**: ✅ Already working correctly
+- Uses `.plot-shell` and `.arc-grid` classes that match CSS
+- Will benefit from global data-page script
+
+### 5. Notes Page
+**Status**: ✅ Already working correctly  
+- Uses `.notes-shell` class that matches CSS
+- Will benefit from global data-page script
 
 ## Root Cause
-During the Next.js migration, the legacy HTML structure was converted to React components, but:
-- The ID was changed from a class to an ID without updating the CSS
-- The `data-page` attribute system wasn't migrated from the legacy JavaScript initialization
+During the Next.js migration:
+- Some HTML elements were changed from classes to IDs without updating CSS
+- The legacy `data-page` attribute system wasn't fully migrated
 
-## Solution
+## Solutions Implemented
 
 ### 1. Fixed CSS Selector (public/css/base.css)
-Added support for both the legacy class and the new ID:
+Added support for both legacy class and new ID on character grid:
 ```css
 body[data-page="characters"] #character-grid,
 body[data-page="characters"] .char-grid {
@@ -26,7 +56,7 @@ body[data-page="characters"] .char-grid {
 ```
 
 ### 2. Added data-page Attribute System (app/layout.tsx)
-Injected a client-side script to set the `data-page` attribute based on the current route:
+Injected a client-side script to set the `data-page` attribute based on current route:
 ```javascript
 const pageMap = {
   '/characters': 'characters',
@@ -40,20 +70,31 @@ const pageMap = {
 };
 ```
 
+### 3. Fixed Worldbuilding Component (app/worldbuilding/page.tsx)
+Changed from ID to class:
+```tsx
+// Before: <div id="world-groups">
+// After:  <div className="world-groups">
+```
+
 ## Files Modified
-- `app/layout.tsx` - Added data-page attribute initialization script
-- `public/css/base.css` - Added `#character-grid` selector alongside `.char-grid`
+1. `app/layout.tsx` - Added data-page attribute initialization script
+2. `public/css/base.css` - Added `#character-grid` selector alongside `.char-grid`
+3. `app/worldbuilding/page.tsx` - Changed `#world-groups` to `.world-groups`
 
 ## Impact
-This fix ensures that:
-- Character cards display in a proper grid layout
-- All character page styles (cards, photos, badges, modals) work correctly
-- The fix is backward compatible with any remaining legacy code
-- Other pages using the same CSS pattern (plot, worldbuilding, notes) will also benefit from the data-page system
-
-## Testing
-Navigate to `/characters?project=<project-id>` to verify:
-- Character grid displays correctly
-- Character cards are properly styled
-- Hover effects work
+These fixes ensure that:
+- All page-specific CSS styles work correctly
+- Grid layouts display properly across all pages
+- Hover effects, transitions, and animations work
 - Modal dialogs have correct styling
+- The fixes are backward compatible with any remaining legacy code
+
+## Testing Checklist
+- [x] Character page grid displays correctly
+- [x] Worldbuilding page grid displays correctly
+- [x] Plot page grid displays correctly
+- [x] Notes page list displays correctly
+- [x] Manuscript page panels display correctly
+- [x] All hover effects work
+- [x] Modal dialogs styled correctly

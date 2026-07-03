@@ -116,7 +116,7 @@ function WorldbuildingContent() {
           </Button>
         </div>
 
-        <div id="world-groups" style={{ padding: '24px' }}>
+        <div className="world-groups" style={{ padding: '24px' }}>
           {loading && <Loading />}
           
           {!loading && entries.length === 0 && (
