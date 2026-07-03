@@ -78,27 +78,27 @@ export default function LoginPage() {
   // Show loading state while checking auth
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-sm bg-surface border border-default rounded-[var(--radius-lg)] p-8 shadow-sm">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--bg)]">
+        <div className="w-full max-w-sm bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8 shadow-sm">
           <div className="flex items-baseline gap-1 mb-1">
             <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
             <span className="w-0.5 h-6 bg-[var(--accent)] cursor-blink" aria-hidden="true"></span>
           </div>
-          <p className="text-muted text-sm tracking-wide mb-7">Memuat…</p>
+          <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">Memuat…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-sm bg-surface border border-default rounded-[var(--radius-lg)] p-8 shadow-sm">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--bg)]">
+      <div className="w-full max-w-sm bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8 shadow-sm">
         {/* Brand */}
         <div className="flex items-baseline gap-1 mb-1">
           <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
           <span className="w-0.5 h-6 bg-[var(--accent)] cursor-blink" aria-hidden="true"></span>
         </div>
-        <p className="text-muted text-sm tracking-wide mb-7">
+        <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">
           {mode === "login" 
             ? "Masuk untuk lanjut menulis" 
             : "Buat akun baru"}
@@ -109,7 +109,7 @@ export default function LoginPage() {
           <div>
             <label 
               htmlFor="email"
-              className="block text-xs text-muted mb-1.5"
+              className="block text-xs text-[var(--text-muted)] mb-1.5"
             >
               Email
             </label>
@@ -121,14 +121,14 @@ export default function LoginPage() {
               required
               autoComplete="email"
               disabled={isSubmitting}
-              className="w-full px-3 py-2.5 bg-surface border border-default rounded-[var(--radius)] text-primary text-sm outline-none transition-all focus:border-accent focus:shadow-[0_0_0_3px_rgba(155,139,189,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] text-sm outline-none transition-all focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
           <div>
             <label 
               htmlFor="password"
-              className="block text-xs text-muted mb-1.5"
+              className="block text-xs text-[var(--text-muted)] mb-1.5"
             >
               Kata sandi
             </label>
@@ -141,7 +141,7 @@ export default function LoginPage() {
               autoComplete={mode === "login" ? "current-password" : "new-password"}
               minLength={6}
               disabled={isSubmitting}
-              className="w-full px-3 py-2.5 bg-surface border border-default rounded-[var(--radius)] text-primary text-sm outline-none transition-all focus:border-accent focus:shadow-[0_0_0_3px_rgba(155,139,189,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] text-sm outline-none transition-all focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -164,21 +164,21 @@ export default function LoginPage() {
           
           {/* Success Message */}
           {isSuccess && (
-            <p className="text-sm text-accent mt-2.5">
+            <p className="text-sm text-[var(--accent)] mt-2.5">
               Akun dibuat. Kalau email confirmation aktif, cek inbox dulu sebelum masuk.
             </p>
           )}
         </form>
 
         {/* Mode Toggle */}
-        <p className="text-center mt-4.5 text-sm text-muted">
+        <p className="text-center mt-4.5 text-sm text-[var(--text-muted)]">
           <span>
             {mode === "login" ? "Belum punya akun?" : "Sudah punya akun?"}
           </span>{" "}
           <button 
             type="button"
             onClick={toggleMode}
-            className="underline cursor-pointer hover:text-accent transition-colors"
+            className="underline cursor-pointer text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
           >
             {mode === "login" ? "Daftar" : "Masuk"}
           </button>

@@ -50,7 +50,7 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
         />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full bg-[var(--bg)] text-[var(--text)]">{children}</body>
     </html>
   );
 }
