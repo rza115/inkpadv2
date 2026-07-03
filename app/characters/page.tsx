@@ -1,115 +1,141 @@
-"use client";
+/**
+ * Characters Page
+ * Manage characters with photos, roles, and descriptions
+ */
+'use client';
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useCharacterStore } from '@/store/useCharacterStore';
+import { Loading } from '@/components/ui';
+import { CharacterCard, NewCharacterCard } from '@/components/characters/CharacterCard';
+import { CharacterModal } from '@/components/characters/CharacterModal';
+import type { Character, CharacterRole } from '@/types/character';
 
-export default function CharactersPage() {
-  const initialized = useRef(false);
+function CharactersContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get('project');
+  const openId = searchParams.get('open');
+  
+  const { characters, loading, loadCharacters, createCharacter, updateCharacter, deleteCharacter } = useCharacterStore();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
+
+  const handleOpenModal = (character?: Character) => {
+    setEditingCharacter(character || null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingCharacter(null);
+  };
 
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-
-    // Set body attributes that nav.js and pageInit.js expect
-    document.body.dataset.layout = "project";
-    document.body.dataset.page = "characters";
-    document.body.dataset.title = "Memuat…";
-
-    // Load CSS files
-    const cssFiles = [
-      '/css/base.css',
-      '/css/layout.css',
-      '/css/components.css'
-    ];
-    cssFiles.forEach(href => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-      }
-    });
-
-    // Load scripts in order
-    const scriptUrls = [
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-      "/js/core/supabase-client.js",
-      "/js/core/project-context.js",
-      "/js/core/offline-queue.js",
-      "/js/core/pwa-register.js",
-      "/js/core/nav.js",
-      "/js/core/pageInit.js",
-      "/js/core/storage.js",
-      "/js/modules/projects.js",
-      "/js/modules/characters.js",
-      "/js/modules/characters-page.js",
-    ];
-
-    let idx = 0;
-    function loadNext() {
-      if (idx >= scriptUrls.length) return;
-      const script = document.createElement("script");
-      script.src = scriptUrls[idx];
-      script.async = false;
-      script.onload = () => {
-        idx++;
-        loadNext();
-      };
-      script.onerror = () => {
-        idx++;
-        loadNext();
-      };
-      document.body.appendChild(script);
+    if (!projectId) {
+      router.push('/');
+      return;
     }
-    loadNext();
-  }, []);
+
+    loadCharacters(projectId);
+  }, [projectId]);
+
+  // Handle deep-link to open specific character
+  useEffect(() => {
+    if (!openId || characters.length === 0) return;
+    
+    const character = characters.find((c) => c.id === openId);
+    if (character) {
+      // Deep-linking requires setState in effect - intentional behavior
+      // eslint-disable-next-line
+      setEditingCharacter(character);
+      setIsModalOpen(true);
+      // Clear the open parameter from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('open');
+      window.history.replaceState(null, '', url);
+    }
+  }, [openId, characters]);
+
+  const handleSave = async (
+    data: {
+      name: string;
+      aliases: string | null;
+      role: CharacterRole | null;
+      description: string | null;
+    },
+    photoFile?: File
+  ) => {
+    if (!projectId) return;
+
+    if (editingCharacter) {
+      await updateCharacter(editingCharacter.id, data, photoFile);
+    } else {
+      await createCharacter(projectId, data, photoFile);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!editingCharacter) return;
+    await deleteCharacter(editingCharacter.id);
+  };
+
+  if (!projectId) {
+    return (
+      <div style={{ padding: '24px' }}>
+        <p className="muted">
+          Tidak ada novel yang dipilih. Kembali ke <Link href="/">Project Hub</Link>.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
       <main id="page-main">
-        <div className="char-grid" id="character-grid"></div>
+        <div id="character-grid">
+          {loading && <Loading />}
+          
+          {!loading && (
+            <>
+              <NewCharacterCard onClick={() => handleOpenModal()} />
+              
+              {characters.length === 0 ? (
+                <p className="muted empty-state">
+                  Belum ada karakter. Mulai dari tokoh utama.
+                </p>
+              ) : (
+                characters.map((character) => (
+                  <CharacterCard
+                    key={character.id}
+                    character={character}
+                    onClick={() => handleOpenModal(character)}
+                  />
+                ))
+              )}
+            </>
+          )}
+        </div>
       </main>
 
-      <div className="modal-overlay" id="character-modal">
-        <div className="modal-card">
-          <h2 id="modal-title">Karakter baru</h2>
-          <form id="character-form">
-            <div className="photo-upload-row">
-              <label className="photo-preview" id="photo-preview" htmlFor="character-photo">
-                <i className="ti ti-camera-plus" aria-hidden="true"></i>
-              </label>
-              <input type="file" id="character-photo" accept="image/*" hidden />
-            </div>
-            <div className="field">
-              <label htmlFor="character-name">Nama</label>
-              <input type="text" id="character-name" required />
-            </div>
-            <div className="field">
-              <label htmlFor="character-aliases">Alias (opsional)</label>
-              <input type="text" id="character-aliases" placeholder="Nama panggilan, julukan, dst" />
-            </div>
-            <div className="field">
-              <label htmlFor="character-role">Peran</label>
-              <select id="character-role">
-                <option value="">— Pilih —</option>
-                <option value="mc">Protagonis</option>
-                <option value="supporting">Pendukung</option>
-                <option value="antagonist">Antagonis</option>
-                <option value="other">Lainnya</option>
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="character-description">Deskripsi</label>
-              <textarea id="character-description" rows={4} placeholder="Fisik, kepribadian, latar belakang..."></textarea>
-            </div>
-            <p className="error" id="character-error" style={{ display: 'none', color: 'var(--danger)', fontSize: '13px' }}></p>
-            <div className="modal-actions">
-              <button type="button" className="ghost" id="character-delete-btn" style={{ display: 'none' }}>Hapus</button>
-              <button type="button" className="ghost" id="modal-close">Batal</button>
-              <button type="submit" className="primary">Simpan</button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <CharacterModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        character={editingCharacter}
+        onSave={handleSave}
+        onDelete={editingCharacter ? handleDelete : undefined}
+      />
     </>
+  );
+}
+
+export default function CharactersPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <CharactersContent />
+    </Suspense>
   );
 }
