@@ -36,10 +36,7 @@ export default function RootLayout({
       <head>
         {/* Custom CSS - loaded before everything else */}
         <link rel="stylesheet" href="/css/base.css" />
-        <link rel="stylesheet" href="/css/layout.css" />
-        <link rel="stylesheet" href="/css/components.css" />
         <link rel="stylesheet" href="/css/manuscript.css" />
-        <link rel="stylesheet" href="/css/splash.css" />
         <link rel="stylesheet" href="/css/reader.css" />
         
         {/* Google Fonts - preconnect for performance */}

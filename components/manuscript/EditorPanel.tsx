@@ -329,12 +329,12 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
               >
                 <i className="ti ti-download" aria-hidden="true"></i>
               </button>
-              <div className={`export-dropdown ${exportOpen ? 'open' : ''}`} id="export-dropdown">
-                <div className="export-dropdown-item" onClick={() => { setExportOpen(false); exportChapterMarkdown(); }}>
+              <div className={`hidden ${exportOpen ? 'block' : ''} absolute top-[calc(100%+6px)] right-0 bg-[var(--surface-raised)] border border-[var(--border)] rounded min-w-[190px] z-50 overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.3)]`} id="export-dropdown">
+                <div className="px-[14px] py-[10px] text-xs cursor-pointer text-[var(--text)] flex items-center gap-2 hover:bg-[var(--surface)]" onClick={() => { setExportOpen(false); exportChapterMarkdown(); }}>
                   <i className="ti ti-file-text" aria-hidden="true"></i> Bab ini (.md)
                 </div>
-                <div className="export-dropdown-divider"></div>
-                <div className="export-dropdown-item" onClick={() => { setExportOpen(false); exportAllMarkdown(); }}>
+                <div className="h-px bg-[var(--border)]"></div>
+                <div className="px-[14px] py-[10px] text-xs cursor-pointer text-[var(--text)] flex items-center gap-2 hover:bg-[var(--surface)]" onClick={() => { setExportOpen(false); exportAllMarkdown(); }}>
                   <i className="ti ti-files" aria-hidden="true"></i> Semua bab (.md)
                 </div>
               </div>
