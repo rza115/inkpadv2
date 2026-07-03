@@ -59,34 +59,32 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
   };
 
   return (
-    <div className="r-topbar">
-      <div className="r-topbar-left">
-        <button
-          id="back-btn"
-          className="r-btn"
-          onClick={handleBack}
-          title="Kembali"
-        >
-          <i className="ti ti-arrow-left" aria-hidden="true"></i>
-        </button>
-        <button
-          id="toc-btn"
-          className="r-btn"
-          onClick={onTOCToggle}
-          title="Daftar bab"
-        >
-          <i className="ti ti-list" aria-hidden="true"></i>
-        </button>
-        <h2 id="topbar-title">{chapterTitle}</h2>
-      </div>
+    <div className="h-12 flex items-center gap-3 px-4 pt-[env(safe-area-inset-top,0px)] border-b border-[var(--border)] shrink-0 bg-[var(--bg)] z-40 w-full max-w-full min-w-0 max-md:h-auto max-md:min-h-[calc(48px+env(safe-area-inset-top,0px))] max-md:grid max-md:grid-cols-[auto_auto_1fr] max-md:grid-rows-[auto_auto] max-md:p-[max(8px,env(safe-area-inset-top,0px))_12px_8px] max-md:gap-2">
+      <button
+        id="back-btn"
+        className="flex items-center gap-1.5 bg-transparent border border-[var(--border)] text-[var(--text)] rounded-md px-2.5 py-1 text-xs cursor-pointer whitespace-nowrap hover:border-[var(--accent)] hover:text-[var(--accent)] max-md:col-[1] max-md:row-[1] max-md:px-2 max-md:text-[11px]"
+        onClick={handleBack}
+        title="Kembali"
+      >
+        <i className="ti ti-arrow-left" aria-hidden="true"></i>
+      </button>
+      <button
+        id="toc-btn"
+        className="flex items-center gap-1.5 bg-transparent border border-[var(--border)] text-[var(--text)] rounded-md px-2.5 py-1 text-xs cursor-pointer whitespace-nowrap hover:border-[var(--accent)] hover:text-[var(--accent)] max-md:col-[2] max-md:row-[1] max-md:px-2 max-md:text-[11px]"
+        onClick={onTOCToggle}
+        title="Daftar bab"
+      >
+        <i className="ti ti-list" aria-hidden="true"></i>
+      </button>
+      <h2 className="flex-1 min-w-0 text-center font-['Playfair_Display',serif] text-sm overflow-hidden text-ellipsis whitespace-nowrap text-[var(--text-muted)] max-md:hidden">{chapterTitle}</h2>
 
-      <div className="r-topbar-right">
+      <div className="flex gap-1.5 items-center shrink-0 min-w-0 max-md:col-[1/-1] max-md:row-[2] max-md:justify-start max-md:overflow-x-auto max-md:[-webkit-overflow-scrolling:touch] max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden">
         {/* Font Family */}
         <Select
           id="font-family-select"
           value={preferences.fontFamily}
           onChange={(e) => setFontFamily(e.target.value as FontFamily)}
-          style={{ width: '120px' }}
+          className="bg-transparent border border-[var(--border)] text-[var(--text-muted)] rounded-md h-7 px-2 pr-6 text-[11px] cursor-pointer appearance-none max-w-[108px] hover:text-[var(--text)] hover:border-[var(--accent)] focus:text-[var(--text)] focus:border-[var(--accent)] focus:outline-none max-md:max-w-[88px] max-md:text-[10px]"
         >
           {FONT_FAMILIES.map((font) => (
             <option key={font} value={font}>
@@ -98,7 +96,7 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
         {/* Font Size Controls */}
         <button
           id="font-sm"
-          className="r-btn"
+          className="flex items-center justify-center bg-transparent border border-[var(--border)] text-[var(--text-muted)] rounded-md w-[30px] h-7 text-xs cursor-pointer hover:text-[var(--text)] hover:border-[var(--accent)]"
           onClick={() => setFontSize('decrease')}
           title="Perkecil teks"
         >
@@ -106,7 +104,7 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
         </button>
         <button
           id="font-lg"
-          className="r-btn"
+          className="flex items-center justify-center bg-transparent border border-[var(--border)] text-[var(--text-muted)] rounded-md w-[30px] h-7 text-xs cursor-pointer hover:text-[var(--text)] hover:border-[var(--accent)]"
           onClick={() => setFontSize('increase')}
           title="Perbesar teks"
         >
@@ -117,7 +115,7 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
         {TEXT_ALIGNS.map((align) => (
           <button
             key={align}
-            className={`r-btn${preferences.textAlign === align ? ' active' : ''}`}
+            className={`flex items-center justify-center bg-transparent border border-[var(--border)] rounded-md w-[30px] h-7 text-xs cursor-pointer hover:text-[var(--text)] hover:border-[var(--accent)] ${preferences.textAlign === align ? 'border-[var(--accent)] text-[var(--accent)]' : 'text-[var(--text-muted)]'}`}
             data-text-align={align}
             onClick={() => setTextAlign(align as TextAlign)}
             title={`Rata ${align === 'left' ? 'kiri' : align === 'right' ? 'kanan' : 'kiri-kanan'}`}
@@ -132,7 +130,7 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
         {/* Width Toggle */}
         <button
           id="width-btn"
-          className="r-btn"
+          className="flex items-center justify-center bg-transparent border border-[var(--border)] text-[var(--text-muted)] rounded-md w-[30px] h-7 text-xs cursor-pointer hover:text-[var(--text)] hover:border-[var(--accent)]"
           onClick={cycleWidth}
           title="Ubah lebar kolom"
         >
@@ -142,7 +140,7 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
         {/* Theme Toggle */}
         <button
           id="theme-btn"
-          className="r-btn"
+          className="flex items-center justify-center bg-transparent border border-[var(--border)] text-[var(--text-muted)] rounded-md w-[30px] h-7 text-xs cursor-pointer hover:text-[var(--text)] hover:border-[var(--accent)]"
           onClick={handleThemeToggle}
           title="Ganti tema"
         >

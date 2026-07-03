@@ -197,8 +197,8 @@ export function ReaderContent({
   }, [preferences, getFontSizeClass, getWidthClass]);
 
   return (
-    <div id="r-pane" ref={paneRef}>
-      <div id="r-column" ref={columnRef}>
+    <div id="r-pane" ref={paneRef} className="flex-1 overflow-y-auto px-6 py-10 min-w-0 w-full max-md:p-[24px_max(16px,env(safe-area-inset-right,0px))_calc(24px+env(safe-area-inset-bottom,0px))_max(16px,env(safe-area-inset-left,0px))]">
+      <div id="r-column" ref={columnRef} className="r-column max-w-[680px] mx-auto transition-[max-width] duration-200">
         <p className="r-loading">Memuat…</p>
       </div>
     </div>

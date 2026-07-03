@@ -38,23 +38,6 @@ function ReaderContent_Page() {
   const [illustrations, setIllustrations] = useState<Illustration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load CSS files
-  useEffect(() => {
-    const cssFiles = [
-      "/css/base.css",
-      "/css/layout.css",
-      "/css/components.css",
-      "/css/reader.css",
-    ];
-    cssFiles.forEach((href) => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = href;
-        document.head.appendChild(link);
-      }
-    });
-  }, []);
 
   // Sync topbar height CSS variable
   useEffect(() => {
@@ -237,34 +220,14 @@ function ReaderContent_Page() {
   const chapterTitle = activeChapter?.title || "Tanpa judul";
 
   return (
-    <div className="r-shell">
+    <div className="h-screen flex flex-col overflow-hidden bg-[var(--bg)]">
       <ReaderTopbar
         projectId={projectId}
         chapterTitle={chapterTitle}
         onTOCToggle={toggleTOC}
       />
 
-      <div className="r-main">
-        {/* Project Info Sidebar */}
-        <aside className="r-project-info">
-          <div
-            id="r-cover"
-            className="r-cover"
-            style={
-              project?.cover_url
-                ? { backgroundImage: `url('${project.cover_url}')` }
-                : undefined
-            }
-          >
-            {!project?.cover_url && (
-              <i className="ti ti-book-2" aria-hidden="true"></i>
-            )}
-          </div>
-          <h3 id="r-project-title" className="r-project-title">
-            {project?.title || "Memuat..."}
-          </h3>
-        </aside>
-
+      <div className="flex flex-1 overflow-hidden min-w-0 w-full">
         {/* Table of Contents */}
         <ReaderTOC
           chapters={chapters}
@@ -276,14 +239,14 @@ function ReaderContent_Page() {
 
         {/* Main Content */}
         {isLoading ? (
-          <div id="r-pane">
-            <div id="r-column">
+          <div className="flex-1 overflow-y-auto px-6 py-10">
+            <div className="max-w-[680px] mx-auto">
               <p className="r-loading">Memuat...</p>
             </div>
           </div>
         ) : chapters.length === 0 ? (
-          <div id="r-pane">
-            <div id="r-column">
+          <div className="flex-1 overflow-y-auto px-6 py-10">
+            <div className="max-w-[680px] mx-auto">
               <p className="r-loading">Novel ini belum punya bab.</p>
             </div>
           </div>

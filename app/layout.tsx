@@ -35,7 +35,7 @@ export default function RootLayout({
     <html lang="id" className="h-full">
       <head>
         {/* Custom CSS - loaded before everything else */}
-        <link rel="stylesheet" href="/css/reader.css" />
+        <link rel="stylesheet" href="/css/reader-typography.css" />
         
         {/* Google Fonts - preconnect for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
