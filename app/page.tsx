@@ -100,53 +100,55 @@ export default function HubPage() {
     <>
       <Nav layout="hub" title="Inkpad">
         <main id="page-main">
-        <div className="hub-shell">
-          {/* Toolbar with Sort */}
-          <div className="hub-toolbar">
-            <label htmlFor="hub-sort">Urutkan</label>
-            <select 
-              id="hub-sort" 
-              className="hub-sort-select"
-              value={currentSort}
-              onChange={handleSortChange}
-            >
-              <option value="updated_desc">Terbaru diubah</option>
-              <option value="title_asc">Judul (A–Z)</option>
-              <option value="title_desc">Judul (Z–A)</option>
-              <option value="genre_asc">Genre (A–Z)</option>
-              <option value="genre_desc">Genre (Z–A)</option>
-              <option value="status_asc">Status</option>
-              <option value="created_desc">Terbaru dibuat</option>
-              <option value="created_asc">Terlama dibuat</option>
-            </select>
-          </div>
+          <div className="max-w-[1200px] mx-auto p-0">
+            {/* Toolbar with Sort */}
+            <div className="flex items-center justify-end gap-2 mb-4">
+              <label htmlFor="hub-sort" className="text-sm text-muted">
+                Urutkan
+              </label>
+              <select 
+                id="hub-sort" 
+                className="w-auto min-w-[190px] px-3 py-2 bg-surface border border-default rounded-[var(--radius)] text-primary text-sm outline-none transition-all focus:border-accent"
+                value={currentSort}
+                onChange={handleSortChange}
+              >
+                <option value="updated_desc">Terbaru diubah</option>
+                <option value="title_asc">Judul (A–Z)</option>
+                <option value="title_desc">Judul (Z–A)</option>
+                <option value="genre_asc">Genre (A–Z)</option>
+                <option value="genre_desc">Genre (Z–A)</option>
+                <option value="status_asc">Status</option>
+                <option value="created_desc">Terbaru dibuat</option>
+                <option value="created_asc">Terlama dibuat</option>
+              </select>
+            </div>
 
-          {/* Project Grid */}
-          <div className="hub-grid">
-            <NewProjectCard onClick={handleNewProject} />
-            
-            {projectsLoading && projects.length === 0 && (
-              <p className="muted">Memuat…</p>
-            )}
-            
-            {!projectsLoading && sortedProjects.length === 0 && (
-              <p className="muted empty-state">
-                Belum ada novel. Mulai yang pertama lewat kartu di atas.
-              </p>
-            )}
-            
-            {sortedProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onEdit={handleEditProject}
-                onEditCover={handleEditCover}
-                onDelete={handleDeleteProject}
-              />
-            ))}
+            {/* Project Grid */}
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">
+              <NewProjectCard onClick={handleNewProject} />
+              
+              {projectsLoading && projects.length === 0 && (
+                <p className="text-muted text-sm">Memuat…</p>
+              )}
+              
+              {!projectsLoading && sortedProjects.length === 0 && (
+                <p className="text-muted text-sm text-center py-10 col-span-full">
+                  Belum ada novel. Mulai yang pertama lewat kartu di atas.
+                </p>
+              )}
+              
+              {sortedProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onEdit={handleEditProject}
+                  onEditCover={handleEditCover}
+                  onDelete={handleDeleteProject}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
       </Nav>
 
       {/* Project Create/Edit Modal */}

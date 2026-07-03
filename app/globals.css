@@ -1,11 +1,33 @@
 @import "tailwindcss";
 
-/* CSS Variables for Tailwind compatibility */
-:root {
-  --background: #f5f2ec;
-  --foreground: #1d1a24;
+/* Tailwind v4 Theme Configuration */
+@theme {
+  /* Custom Colors */
+  --color-ink: #1d1a24;
+  --color-cream: #f5f2ec;
+  --color-lavender: #9b8bbd;
+  --color-lavender-deep: #6f5fa0;
+  --color-danger: #c0594a;
+  --color-success: #4caf50;
   
-  /* Base theme variables (sync with base.css) */
+  /* Font Families */
+  --font-family-serif: 'Lora', Georgia, serif;
+  --font-family-sans: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* Spacing scale enhancements */
+  --spacing-18: 4.5rem;
+}
+
+/* CSS Variables for theme switching */
+:root,
+[data-theme="inkpad"] {
   --bg: #f5f2ec;
   --surface: #ffffff;
   --surface-raised: #fbf9f5;
@@ -23,11 +45,50 @@
   --radius-lg: 12px;
 }
 
+[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --surface: #2a2a2a;
+  --surface-raised: #333333;
+  --border: rgba(255, 255, 255, 0.1);
+  --text: #e8e6e3;
+  --text-muted: #999999;
+  --accent: #b8a9d4;
+  --accent-deep: #9b8bbd;
+  --accent-text: #1a1a1a;
+  --danger: #e57373;
+  --success: #81c784;
+}
+
+[data-theme="sepia"] {
+  --bg: #f5f0e8;
+  --surface: #ece5d8;
+  --surface-raised: #e8dfcf;
+  --border: rgba(60, 40, 20, 0.12);
+  --text: #3d2b1f;
+  --text-muted: #8c7355;
+  --accent: #b87c3a;
+  --accent-deep: #9c5a1e;
+  --accent-text: #f5f0e8;
+  --danger: #c0594a;
+  --success: #6f9e6f;
+}
+
+[data-theme="forest"] {
+  --bg: #e8efe5;
+  --surface: #f5faf3;
+  --surface-raised: #ecf3e9;
+  --border: rgba(30, 60, 30, 0.1);
+  --text: #1e3a1e;
+  --text-muted: #6b8f6b;
+  --accent: #6b9e6b;
+  --accent-deep: #4a7a4a;
+  --accent-text: #f5faf3;
+  --danger: #b85c5c;
+  --success: #5a8f5a;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1a1a1a;
-    --foreground: #e8e6e3;
-    
     --bg: #1a1a1a;
     --surface: #2a2a2a;
     --surface-raised: #333333;
@@ -42,8 +103,79 @@
   }
 }
 
+/* Base styles */
 body {
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Smooth theme transitions */
+body,
+button,
+input,
+textarea,
+select {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.no-transition,
+.no-transition * {
+  transition: none !important;
+}
+
+/* Utility classes using CSS variables */
+.bg-surface {
+  background-color: var(--surface);
+}
+
+.bg-surface-raised {
+  background-color: var(--surface-raised);
+}
+
+.text-primary {
+  color: var(--text);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.text-accent-deep {
+  color: var(--accent-deep);
+}
+
+.border-default {
+  border-color: var(--border);
+}
+
+.border-accent {
+  border-color: var(--accent);
+}
+
+/* Brand title with gradient */
+.brand-title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Keyframe animations */
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.cursor-blink {
+  animation: blink 1.1s steps(1) infinite;
 }

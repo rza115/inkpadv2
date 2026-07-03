@@ -54,27 +54,40 @@ export function ProjectCard({ project, onEdit, onEditCover, onDelete }: ProjectC
   }[project.status] || project.status;
 
   return (
-    <div className="project-card" onClick={handleClick}>
+    <div 
+      className="group relative bg-surface border border-default rounded-[var(--radius-lg)] overflow-hidden cursor-pointer flex flex-col transition-colors hover:border-accent"
+      onClick={handleClick}
+    >
       {/* Cover */}
       <div
-        className={`cover ${project.cover_url ? '' : 'cover-placeholder'}`}
+        className="aspect-[2/3] bg-surface-raised bg-cover bg-center flex items-center justify-center text-muted text-[28px]"
         style={project.cover_url ? { backgroundImage: `url('${project.cover_url}')` } : undefined}
       >
         {!project.cover_url && <i className="ti ti-book-2" aria-hidden="true"></i>}
       </div>
 
       {/* Meta */}
-      <div className="project-meta">
-        <p className="project-title">{project.title}</p>
-        <div className="project-tags">
-          <span className={`badge status-${project.status}`}>{statusLabel}</span>
-          {project.genre && <span className="badge">{project.genre}</span>}
+      <div className="p-2.5 px-3">
+        <p className="font-serif text-sm font-semibold mb-1.5 line-clamp-2">
+          {project.title}
+        </p>
+        <div className="flex gap-1.5 flex-wrap">
+          <span className={`text-[11px] px-2 py-0.5 rounded-full bg-surface-raised ${
+            project.status === 'ongoing' ? 'text-accent' : 'text-muted'
+          }`}>
+            {statusLabel}
+          </span>
+          {project.genre && (
+            <span className="text-[11px] px-2 py-0.5 rounded-full bg-surface-raised text-muted">
+              {project.genre}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Action Buttons */}
       <button
-        className="cover-edit-btn"
+        className="absolute top-2 left-2 w-[26px] h-[26px] rounded-full bg-[rgba(27,26,23,0.6)] text-primary flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[rgba(27,26,23,0.85)] hover:text-accent"
         title="Ubah cover"
         type="button"
         onClick={handleEditCover}
@@ -83,7 +96,7 @@ export function ProjectCard({ project, onEdit, onEditCover, onDelete }: ProjectC
       </button>
       
       <button
-        className="edit-btn"
+        className="absolute top-2 left-10 w-[26px] h-[26px] rounded-full bg-[rgba(27,26,23,0.6)] text-primary flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[rgba(27,26,23,0.85)] hover:text-accent"
         title="Edit detail"
         type="button"
         onClick={handleEdit}
@@ -92,7 +105,7 @@ export function ProjectCard({ project, onEdit, onEditCover, onDelete }: ProjectC
       </button>
       
       <button
-        className="delete-btn"
+        className="absolute top-2 right-2 w-[26px] h-[26px] rounded-full bg-[rgba(27,26,23,0.6)] text-primary flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[rgba(27,26,23,0.85)] hover:text-accent"
         title="Hapus novel"
         type="button"
         onClick={handleDelete}
@@ -105,8 +118,11 @@ export function ProjectCard({ project, onEdit, onEditCover, onDelete }: ProjectC
 
 export function NewProjectCard({ onClick }: { onClick: () => void }) {
   return (
-    <div className="project-card new-card" onClick={onClick}>
-      <i className="ti ti-plus" aria-hidden="true"></i>
+    <div 
+      className="bg-surface border border-dashed border-default rounded-[var(--radius-lg)] cursor-pointer flex flex-col items-center justify-center gap-2 min-h-[240px] text-muted text-sm transition-colors hover:border-accent"
+      onClick={onClick}
+    >
+      <i className="ti ti-plus text-[22px]" aria-hidden="true"></i>
       <span>Novel baru</span>
     </div>
   );

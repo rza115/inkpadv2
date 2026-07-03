@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -78,34 +78,41 @@ export default function LoginPage() {
   // Show loading state while checking auth
   if (authLoading) {
     return (
-      <div className="login-wrap" style={{ minHeight: "100dvh" }}>
-        <div className="login-card">
-          <div className="brand">
-            <h1>Inkpad</h1>
-            <span className="cursor" aria-hidden="true"></span>
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-sm bg-surface border border-default rounded-[var(--radius-lg)] p-8 shadow-sm">
+          <div className="flex items-baseline gap-1 mb-1">
+            <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
+            <span className="w-0.5 h-6 bg-[var(--accent)] cursor-blink" aria-hidden="true"></span>
           </div>
-          <p className="tagline">Memuat…</p>
+          <p className="text-muted text-sm tracking-wide mb-7">Memuat…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="login-wrap" style={{ minHeight: "100dvh" }}>
-      <div className="login-card">
-        <div className="brand">
-          <h1>Inkpad</h1>
-          <span className="cursor" aria-hidden="true"></span>
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-sm bg-surface border border-default rounded-[var(--radius-lg)] p-8 shadow-sm">
+        {/* Brand */}
+        <div className="flex items-baseline gap-1 mb-1">
+          <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
+          <span className="w-0.5 h-6 bg-[var(--accent)] cursor-blink" aria-hidden="true"></span>
         </div>
-        <p className="tagline">
+        <p className="text-muted text-sm tracking-wide mb-7">
           {mode === "login" 
             ? "Masuk untuk lanjut menulis" 
             : "Buat akun baru"}
         </p>
 
-        <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="email">Email</label>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div>
+            <label 
+              htmlFor="email"
+              className="block text-xs text-muted mb-1.5"
+            >
+              Email
+            </label>
             <input
               type="email"
               id="email"
@@ -114,10 +121,17 @@ export default function LoginPage() {
               required
               autoComplete="email"
               disabled={isSubmitting}
+              className="w-full px-3 py-2.5 bg-surface border border-default rounded-[var(--radius)] text-primary text-sm outline-none transition-all focus:border-accent focus:shadow-[0_0_0_3px_rgba(155,139,189,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
-          <div className="field">
-            <label htmlFor="password">Kata sandi</label>
+
+          <div>
+            <label 
+              htmlFor="password"
+              className="block text-xs text-muted mb-1.5"
+            >
+              Kata sandi
+            </label>
             <input
               type="password"
               id="password"
@@ -127,47 +141,44 @@ export default function LoginPage() {
               autoComplete={mode === "login" ? "current-password" : "new-password"}
               minLength={6}
               disabled={isSubmitting}
+              className="w-full px-3 py-2.5 bg-surface border border-default rounded-[var(--radius)] text-primary text-sm outline-none transition-all focus:border-accent focus:shadow-[0_0_0_3px_rgba(155,139,189,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
+
           <button 
             type="submit" 
-            className="primary" 
             disabled={isSubmitting}
+            className="w-full px-3 py-2.5 bg-[var(--accent-deep)] text-[var(--accent-text)] border-none rounded-[var(--radius)] font-semibold text-sm cursor-pointer transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting 
               ? "Memproses…" 
               : mode === "login" ? "Masuk" : "Daftar"}
           </button>
           
+          {/* Error Message */}
           {error && (
-            <p className="error" style={{ display: "block", color: "var(--danger)" }}>
+            <p className="text-sm text-[var(--danger)] mt-2.5">
               {error}
             </p>
           )}
           
+          {/* Success Message */}
           {isSuccess && (
-            <p className="error" style={{ display: "block", color: "var(--accent)" }}>
+            <p className="text-sm text-accent mt-2.5">
               Akun dibuat. Kalau email confirmation aktif, cek inbox dulu sebelum masuk.
             </p>
           )}
         </form>
 
-        <p className="switch">
+        {/* Mode Toggle */}
+        <p className="text-center mt-4.5 text-sm text-muted">
           <span>
             {mode === "login" ? "Belum punya akun?" : "Sudah punya akun?"}
           </span>{" "}
           <button 
             type="button"
-            onClick={toggleMode} 
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              color: 'inherit', 
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              padding: 0,
-              font: 'inherit'
-            }}
+            onClick={toggleMode}
+            className="underline cursor-pointer hover:text-accent transition-colors"
           >
             {mode === "login" ? "Daftar" : "Masuk"}
           </button>
