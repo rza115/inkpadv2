@@ -5,7 +5,15 @@ Fixed CSS issues across multiple pages where CSS selectors didn't match the comp
 
 ## Issues Found
 
-### 1. Character Page
+### 1. Hub Page (Project List)
+**Problem**:
+- Component used `.hub-shell` wrapper but CSS didn't define it
+- Layout was breaking without proper container
+
+**Fix**:
+- Added `.hub-shell` CSS with max-width and centering
+
+### 2. Character Page
 **Problem**: 
 - CSS used `.char-grid` (class) but component used `#character-grid` (ID)
 - Missing `data-page="characters"` attribute
@@ -14,24 +22,24 @@ Fixed CSS issues across multiple pages where CSS selectors didn't match the comp
 - Added `#character-grid` selector alongside `.char-grid` in CSS
 - Added global data-page script in layout.tsx
 
-### 2. Worldbuilding Page  
+### 3. Worldbuilding Page  
 **Problem**:
 - CSS used `.world-groups` (class) but component used `#world-groups` (ID)
 
 **Fix**:
 - Changed component to use className instead of ID: `<div className="world-groups">`
 
-### 3. Manuscript Page
+### 4. Manuscript Page
 **Status**: ✅ Already working correctly
 - Sets `data-page` attribute directly in component
 - All selectors match properly
 
-### 4. Plot Page
+### 5. Plot Page
 **Status**: ✅ Already working correctly
 - Uses `.plot-shell` and `.arc-grid` classes that match CSS
 - Will benefit from global data-page script
 
-### 5. Notes Page
+### 6. Notes Page
 **Status**: ✅ Already working correctly  
 - Uses `.notes-shell` class that matches CSS
 - Will benefit from global data-page script
