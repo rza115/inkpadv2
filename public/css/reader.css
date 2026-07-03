@@ -331,9 +331,14 @@ body {
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 760px) {
+  /* Define topbar height variable for mobile */
+  :root {
+    --r-topbar-h: calc(48px + env(safe-area-inset-top, 0px));
+  }
+
   .r-topbar {
     height: auto;
-    min-height: calc(48px + env(safe-area-inset-top, 0px));
+    min-height: var(--r-topbar-h);
     display: grid;
     grid-template-columns: auto auto 1fr;
     grid-template-rows: auto auto;
@@ -366,7 +371,7 @@ body {
   /* TOC jadi drawer overlay — mulai di bawah topbar biar cover nggak ketutup */
   .r-toc {
     position: fixed;
-    top: var(--r-topbar-h, 88px);
+    top: var(--r-topbar-h);
     left: 0;
     bottom: 0;
     z-index: 35;

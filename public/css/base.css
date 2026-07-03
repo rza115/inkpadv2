@@ -71,11 +71,30 @@
   color: var(--accent);
 }
 
-/* ── Transisi tema halus ── */
-* { transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
-.no-transition, .no-transition * { transition: none !important; }
+/* ── Transisi tema halus (optimized - only theme-changing elements) ── */
+body,
+.card,
+.modal-card,
+.project-card,
+button,
+input,
+textarea,
+select,
+.nav-icon,
+.sidebar,
+.topbar,
+a {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
 
-* { box-sizing: border-box; }
+.no-transition, 
+.no-transition * { 
+  transition: none !important; 
+}
+
+* { 
+  box-sizing: border-box; 
+}
 
 body {
   margin: 0;

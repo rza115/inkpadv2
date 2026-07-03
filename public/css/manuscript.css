@@ -1871,11 +1871,6 @@ body[data-page="manuscript"] ::-webkit-scrollbar-corner {
   margin-left: auto;
 }
 
-/* Context panel hidden by default */
-.context-panel {
-  display: none;
-}
-
 /* Context section spacing */
 .context-section + .context-section {
   margin-top: 20px;
