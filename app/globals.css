@@ -1,12 +1,5 @@
 @import "tailwindcss";
 
-/* Import custom CSS - loaded in order of dependency */
-@import url('/css/base.css');
-@import url('/css/layout.css');
-@import url('/css/components.css');
-@import url('/css/manuscript.css');
-@import url('/css/splash.css');
-
 /* CSS Variables for Tailwind compatibility */
 :root {
   --background: #f5f2ec;
