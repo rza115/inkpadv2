@@ -85,9 +85,9 @@ function CharactersContent() {
 
   if (!projectId) {
     return (
-      <div style={{ padding: '24px' }}>
-        <p className="muted">
-          Tidak ada novel yang dipilih. Kembali ke <Link href="/">Project Hub</Link>.
+      <div className="p-6">
+        <p className="text-muted text-sm">
+          Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
         </p>
       </div>
     );
@@ -96,7 +96,7 @@ function CharactersContent() {
   return (
     <>
       <main id="page-main">
-        <div id="character-grid">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-4 max-w-[900px]">
           {loading && <Loading />}
           
           {!loading && (
@@ -104,7 +104,7 @@ function CharactersContent() {
               <NewCharacterCard onClick={() => handleOpenModal()} />
               
               {characters.length === 0 ? (
-                <p className="muted empty-state">
+                <p className="text-muted text-sm text-center py-10 col-span-full">
                   Belum ada karakter. Mulai dari tokoh utama.
                 </p>
               ) : (

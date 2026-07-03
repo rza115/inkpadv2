@@ -22,16 +22,23 @@ export function ArcCard({ arc, onClick }: ArcCardProps) {
   const hasRange = arc.chapter_start_id || arc.chapter_end_id;
 
   return (
-    <div className="arc-card" onClick={() => onClick(arc)}>
-      <p className="arc-card-title">{arc.title}</p>
+    <div 
+      className="bg-surface border border-default rounded-[var(--radius-lg)] p-4 cursor-pointer transition-colors hover:border-accent"
+      onClick={() => onClick(arc)}
+    >
+      <p className="font-serif font-semibold text-base mb-2">{arc.title}</p>
       {hasRange && (
-        <p className="arc-card-range">
+        <p className="text-xs text-muted mb-2">
           {startTitle} → {endTitle}
         </p>
       )}
-      {arc.summary && <p className="arc-card-summary">{arc.summary}</p>}
-      <div className="arc-card-footer">
-        <span className={`badge ${arc.status}`}>
+      {arc.summary && (
+        <p className="text-sm text-primary mb-3 line-clamp-2">{arc.summary}</p>
+      )}
+      <div className="flex gap-1.5">
+        <span className={`text-[11px] px-2 py-0.5 rounded-full bg-surface-raised ${
+          arc.status === 'ongoing' ? 'text-accent' : 'text-muted'
+        }`}>
           {STATUS_LABELS[arc.status] || arc.status}
         </span>
       </div>

@@ -35,26 +35,29 @@ export function ForeshadowItem({
   };
 
   return (
-    <div className="foreshadow-item">
+    <div className="flex items-center gap-3 py-2.5 px-3 bg-surface border-b border-default hover:bg-surface-raised transition-colors">
       <span
-        className="foreshadow-note"
+        className="flex-1 text-sm cursor-pointer"
         onClick={() => onEdit(foreshadow)}
-        style={{ cursor: 'pointer' }}
       >
         {foreshadow.note}
       </span>
-      <span className="foreshadow-chapters">
+      <span className="text-xs text-muted whitespace-nowrap">
         {plantedTitle} → {payoffTitle}
       </span>
       <button
-        className={`foreshadow-status ${foreshadow.status}`}
+        className={`text-xs px-2.5 py-1 rounded-full border-none cursor-pointer transition-colors ${
+          isPaid 
+            ? 'bg-[var(--success)] text-white' 
+            : 'bg-surface-raised text-muted hover:bg-[var(--accent)] hover:text-white'
+        }`}
         onClick={handleStatusClick}
         type="button"
       >
         {isPaid ? '✓ Terbayar' : 'Belum dibayar'}
       </button>
       <button
-        className="foreshadow-delete"
+        className="w-6 h-6 rounded-full bg-transparent text-muted border-none cursor-pointer flex items-center justify-center transition-colors hover:bg-surface-raised hover:text-[var(--danger)]"
         onClick={handleDeleteClick}
         title="Hapus"
         type="button"
