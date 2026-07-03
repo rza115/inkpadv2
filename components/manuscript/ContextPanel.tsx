@@ -132,32 +132,32 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
   const initials = (name: string) => (name || '?').trim().slice(0, 1).toUpperCase();
 
   return (
-    <aside className="context-panel" id="context-panel">
+    <aside className="w-[260px] border-l border-[var(--border)] shrink-0 p-4 overflow-y-auto bg-[var(--bg)] max-md:w-full max-md:border-l-0 max-md:border-t max-md:max-h-[50vh]" id="context-panel">
       {/* Characters Section */}
-      <div className="context-section">
-        <div className="context-section-header">
-          <p className="context-section-title">Karakter di bab ini</p>
-          <div className="context-add-wrap">
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)] m-0">Karakter di bab ini</p>
+          <div className="relative">
             <button
-              className="context-add-btn"
+              className="w-6 h-6 flex items-center justify-center bg-transparent border border-[var(--border)] rounded-[var(--radius)] text-[var(--text-muted)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
               title="Tambah karakter"
               onClick={() => { setWorldPickerOpen(false); setPickerOpen(!pickerOpen); }}
             >
-              <i className="ti ti-plus" aria-hidden="true"></i>
+              <i className="ti ti-plus text-xs" aria-hidden="true"></i>
             </button>
             {pickerOpen && (
-              <div className="context-picker" id="context-picker">
+              <div className="absolute top-[calc(100%+6px)] right-0 bg-[var(--surface-raised)] border border-[var(--border)] rounded-[var(--radius)] min-w-[200px] max-w-[280px] max-h-[280px] overflow-y-auto z-50 shadow-lg" id="context-picker">
                 {allCharacters.length === 0 ? (
-                  <p className="context-picker-empty">
-                    Belum ada karakter. <a href={`/characters?project=${projectId}`}>Bikin di sini</a>.
+                  <p className="px-3 py-2 text-xs text-[var(--text-muted)] m-0">
+                    Belum ada karakter. <a href={`/characters?project=${projectId}`} className="text-[var(--accent)]">Bikin di sini</a>.
                   </p>
                 ) : availableChars.length === 0 ? (
-                  <p className="context-picker-empty">Semua karakter udah dipasang di bab ini.</p>
+                  <p className="px-3 py-2 text-xs text-[var(--text-muted)] m-0">Semua karakter udah dipasang di bab ini.</p>
                 ) : (
                   availableChars.map(ch => (
                     <div
                       key={ch.id}
-                      className="context-picker-item"
+                      className="px-3 py-2 cursor-pointer text-sm text-[var(--text)] hover:bg-[var(--surface)] border-b border-[var(--border)] last:border-b-0"
                       onClick={() => handleLinkCharacter(ch.id)}
                     >
                       {ch.name}
@@ -168,23 +168,23 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
             )}
           </div>
         </div>
-        <div className="context-character-list" id="context-character-list">
+        <div className="flex flex-col gap-2" id="context-character-list">
           {linkedCharacters.length === 0 ? (
-            <span className="context-empty">Belum ada karakter di bab ini.</span>
+            <span className="text-xs text-[var(--text-muted)]">Belum ada karakter di bab ini.</span>
           ) : (
             linkedCharacters.map(ch => (
-              <div key={ch.id} className="context-character-chip" onClick={() => {
+              <div key={ch.id} className="flex items-center gap-2 p-2 bg-[var(--surface)] rounded-[var(--radius)] cursor-pointer border border-[var(--border)] hover:border-[var(--accent)] transition-colors group" onClick={() => {
                 router.push(`/characters?project=${projectId}&open=${ch.id}`);
               }}>
                 <span
-                  className="context-character-avatar"
+                  className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-xs font-medium bg-[var(--accent)] text-[var(--bg)] bg-center bg-cover"
                   style={ch.image_url ? { backgroundImage: `url('${ch.image_url}')` } : undefined}
                 >
                   {ch.image_url ? '' : initials(ch.name)}
                 </span>
-                <span>{ch.name}</span>
+                <span className="flex-1 min-w-0 text-sm overflow-hidden text-ellipsis whitespace-nowrap">{ch.name}</span>
                 <button
-                  className="unlink-btn"
+                  className="shrink-0 w-5 h-5 flex items-center justify-center bg-transparent border-none text-[var(--text-muted)] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity hover:text-[var(--text)]"
                   title="Lepas dari bab ini"
                   onClick={(e) => { e.stopPropagation(); handleUnlinkCharacter(ch.id); }}
                 >
@@ -197,30 +197,30 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
       </div>
 
       {/* World Entries Section */}
-      <div className="context-section">
-        <div className="context-section-header">
-          <p className="context-section-title">World di bab ini</p>
-          <div className="context-add-wrap">
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)] m-0">World di bab ini</p>
+          <div className="relative">
             <button
-              className="context-add-btn"
+              className="w-6 h-6 flex items-center justify-center bg-transparent border border-[var(--border)] rounded-[var(--radius)] text-[var(--text-muted)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
               title="Tambah entry world"
               onClick={() => { setPickerOpen(false); setWorldPickerOpen(!worldPickerOpen); }}
             >
-              <i className="ti ti-plus" aria-hidden="true"></i>
+              <i className="ti ti-plus text-xs" aria-hidden="true"></i>
             </button>
             {worldPickerOpen && (
-              <div className="context-picker" id="context-world-picker">
+              <div className="absolute top-[calc(100%+6px)] right-0 bg-[var(--surface-raised)] border border-[var(--border)] rounded-[var(--radius)] min-w-[200px] max-w-[280px] max-h-[280px] overflow-y-auto z-50 shadow-lg" id="context-world-picker">
                 {allWorldEntries.length === 0 ? (
-                  <p className="context-picker-empty">
-                    Belum ada entry. <a href={`/worldbuilding?project=${projectId}`}>Bikin di sini</a>.
+                  <p className="px-3 py-2 text-xs text-[var(--text-muted)] m-0">
+                    Belum ada entry. <a href={`/worldbuilding?project=${projectId}`} className="text-[var(--accent)]">Bikin di sini</a>.
                   </p>
                 ) : availableWorlds.length === 0 ? (
-                  <p className="context-picker-empty">Semua entry udah dipasang di bab ini.</p>
+                  <p className="px-3 py-2 text-xs text-[var(--text-muted)] m-0">Semua entry udah dipasang di bab ini.</p>
                 ) : (
                   availableWorlds.map(entry => (
                     <div
                       key={entry.id}
-                      className="context-picker-item"
+                      className="px-3 py-2 cursor-pointer text-sm text-[var(--text)] hover:bg-[var(--surface)] border-b border-[var(--border)] last:border-b-0"
                       onClick={() => handleLinkWorld(entry.id)}
                     >
                       {entry.title}
@@ -231,17 +231,17 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
             )}
           </div>
         </div>
-        <div className="context-world-list" id="context-world-list">
+        <div className="flex flex-col gap-2" id="context-world-list">
           {linkedWorldEntries.length === 0 ? (
-            <span className="context-empty">Belum ada world entry.</span>
+            <span className="text-xs text-[var(--text-muted)]">Belum ada world entry.</span>
           ) : (
             linkedWorldEntries.map(entry => (
-              <div key={entry.id} className="context-world-chip" onClick={() => {
+              <div key={entry.id} className="flex items-center gap-2 p-2 bg-[var(--surface)] rounded-[var(--radius)] cursor-pointer border border-[var(--border)] hover:border-[var(--accent)] transition-colors group" onClick={() => {
                 router.push(`/worldbuilding?project=${projectId}&open=${entry.id}`);
               }}>
-                <span className="context-world-chip-text">{entry.title}</span>
+                <span className="flex-1 min-w-0 text-sm overflow-hidden text-ellipsis whitespace-nowrap">{entry.title}</span>
                 <button
-                  className="unlink-btn"
+                  className="shrink-0 w-5 h-5 flex items-center justify-center bg-transparent border-none text-[var(--text-muted)] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity hover:text-[var(--text)]"
                   title="Lepas dari bab ini"
                   onClick={(e) => { e.stopPropagation(); handleUnlinkWorld(entry.id); }}
                 >
@@ -254,11 +254,11 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
       </div>
 
       {/* Illustrations Section */}
-      <div className="context-section">
-        <div className="context-section-header">
-          <p className="context-section-title">Ilustrasi</p>
-          <label className="context-add-btn" htmlFor="illus-upload" title="Upload ilustrasi / video">
-            <i className="ti ti-photo-plus" aria-hidden="true"></i>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)] m-0">Ilustrasi</p>
+          <label className="w-6 h-6 flex items-center justify-center bg-transparent border border-[var(--border)] rounded-[var(--radius)] text-[var(--text-muted)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]" htmlFor="illus-upload" title="Upload ilustrasi / video">
+            <i className="ti ti-photo-plus text-xs" aria-hidden="true"></i>
           </label>
           <input
             ref={illusInputRef}
@@ -269,30 +269,30 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
             onChange={handleIllusUpload}
           />
         </div>
-        <div id="context-illus-list">
-          {uploading && <span className="illus-uploading">Mengupload…</span>}
+        <div id="context-illus-list" className="flex flex-col gap-3">
+          {uploading && <span className="text-xs text-[var(--text-muted)]">Mengupload…</span>}
           {!uploading && illustrations.length === 0 && (
-            <span className="context-empty" style={{ fontSize: '12px' }}>Belum ada ilustrasi.</span>
+            <span className="text-xs text-[var(--text-muted)]">Belum ada ilustrasi.</span>
           )}
           {illustrations.map((il, index) => (
-            <div key={il.id} className="illus-thumb-wrap">
-              <span className="illus-index-badge" title={`Gunakan {{illus:${index}}} di editor`}>
+            <div key={il.id} className="relative border border-[var(--border)] rounded-[var(--radius)] overflow-hidden bg-[var(--surface)] group">
+              <span className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center bg-[var(--bg)] text-[var(--accent)] text-xs font-medium rounded-full z-10" title={`Gunakan {{illus:${index}}} di editor`}>
                 {index}
               </span>
               {il.video_url ? (
-                <video className="illus-video-thumb" src={il.video_url} muted loop />
+                <video className="w-full h-auto aspect-video object-cover" src={il.video_url} muted loop />
               ) : il.image_url ? (
-                <img className="illus-thumb" src={il.image_url} alt="" loading="lazy" />
+                <img className="w-full h-auto aspect-video object-cover" src={il.image_url} alt="" loading="lazy" />
               ) : null}
               <input
                 type="text"
-                className="illus-caption-input"
+                className="w-full px-2 py-1.5 text-xs bg-[var(--surface)] border-t border-[var(--border)] text-[var(--text)]"
                 placeholder="Caption opsional…"
                 defaultValue={il.caption || ''}
                 onBlur={(e) => handleCaptionChange(il.id, e.target.value.trim())}
               />
               <button
-                className="illus-delete-btn"
+                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-[var(--bg)] border-none rounded-full text-[var(--text-muted)] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity hover:text-[var(--text)]"
                 title="Hapus ilustrasi"
                 onClick={() => handleDeleteIllus(il.id)}
               >
@@ -301,33 +301,33 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
             </div>
           ))}
         </div>
-        <div className="illus-tip-box">
-          <strong>💡 Tip:</strong>
-          Ketik <code>{`{{illus:0}}`}</code> di editor untuk menempatkan ilustrasi pertama di antara teks. Ganti 0 dengan 1, 2, dst. untuk ilustrasi lainnya.
+        <div className="mt-3 p-2.5 bg-[var(--surface)] rounded-[var(--radius)] text-xs text-[var(--text-muted)] border border-[var(--border)]">
+          <strong className="text-[var(--text)]">💡 Tip:</strong>
+          {' '}Ketik <code className="px-1 py-0.5 bg-[var(--bg)] rounded text-[var(--accent)]">{`{{illus:0}}`}</code> di editor untuk menempatkan ilustrasi pertama di antara teks. Ganti 0 dengan 1, 2, dst. untuk ilustrasi lainnya.
         </div>
       </div>
 
       {/* Notes Section */}
-      <div className="context-section">
-        <div className="context-section-header">
-          <p className="context-section-title">Catatan</p>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)] m-0">Catatan</p>
           <button
-            className="context-add-btn"
+            className="w-6 h-6 flex items-center justify-center bg-transparent border border-[var(--border)] rounded-[var(--radius)] text-[var(--text-muted)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
             title="Lihat semua catatan"
             onClick={() => router.push(`/notes?project=${projectId}`)}
           >
-            <i className="ti ti-external-link" aria-hidden="true"></i>
+            <i className="ti ti-external-link text-xs" aria-hidden="true"></i>
           </button>
         </div>
-        <div id="context-notes-list">
+        <div id="context-notes-list" className="flex flex-col gap-2 mb-3">
           {notes.length === 0 ? (
-            <span className="context-empty" style={{ fontSize: '12px' }}>Belum ada catatan.</span>
+            <span className="text-xs text-[var(--text-muted)]">Belum ada catatan.</span>
           ) : (
             notes.map(note => (
-              <div key={note.id} className="context-note-item">
-                <span className="context-note-text">{note.content}</span>
+              <div key={note.id} className="flex items-start gap-2 p-2 bg-[var(--surface)] rounded-[var(--radius)] text-xs border border-[var(--border)] group">
+                <span className="flex-1 min-w-0 text-[var(--text)]">{note.content}</span>
                 <button
-                  className="context-note-del"
+                  className="shrink-0 w-5 h-5 flex items-center justify-center bg-transparent border-none text-[var(--text-muted)] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity hover:text-[var(--text)]"
                   title="Hapus catatan"
                   onClick={() => handleDeleteNote(note.id)}
                 >
@@ -337,9 +337,10 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
             ))
           )}
         </div>
-        <div className="quick-note-section">
+        <div className="flex flex-col gap-2">
           <textarea
             id="quick-note-input"
+            className="w-full px-2 py-1.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius)] text-sm text-[var(--text)] resize-none"
             rows={2}
             placeholder="Tambah catatan cepat…"
             value={quickNote}
@@ -351,7 +352,7 @@ export function ContextPanel({ projectId }: ContextPanelProps) {
               }
             }}
           />
-          <button className="ghost" id="quick-note-add" onClick={handleQuickNoteAdd}>
+          <button className="px-3 py-1.5 bg-transparent border border-[var(--border)] rounded-[var(--radius)] text-xs text-[var(--text-muted)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]" id="quick-note-add" onClick={handleQuickNoteAdd}>
             Tambah
           </button>
         </div>

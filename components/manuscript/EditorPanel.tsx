@@ -274,12 +274,12 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
   // Empty state when no chapter selected
   if (!activeChapter) {
     return (
-      <section className="editor-panel">
-        <div className="editor-empty" id="editor-empty" style={{ display: 'flex' }}>
-          <div className="editor-empty-inner">
-            <p>Buat bab baru untuk mulai menulis.</p>
+      <section className="flex-1 flex flex-col min-w-0 bg-[var(--bg)]">
+        <div className="flex items-center justify-center flex-1" id="editor-empty">
+          <div className="text-center">
+            <p className="text-[var(--text-muted)] mb-4">Buat bab baru untuk mulai menulis.</p>
             <button
-              className="empty-state-chapter-btn"
+              className="px-4 py-2 bg-[var(--accent)] text-[var(--bg)] rounded-[var(--radius)] cursor-pointer border-none flex items-center gap-2 mx-auto hover:opacity-90 transition-opacity"
               id="empty-new-chapter-btn"
               onClick={() => {
                 const btn = document.getElementById('new-chapter-btn');
@@ -296,93 +296,86 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
 
   return (
     <>
-      <section className={`editor-panel ${focusMode ? 'focus-mode' : ''}`}>
-      {/* Empty state (hidden when chapter is active) */}
-      <div className="editor-empty" id="editor-empty" style={{ display: 'none' }}>
-        <div className="editor-empty-inner">
-          <p>Buat bab baru untuk mulai menulis.</p>
-          <button className="empty-state-chapter-btn" id="empty-new-chapter-btn">
-            <i className="ti ti-plus" aria-hidden="true"></i> Bab baru
-          </button>
-        </div>
-      </div>
-
+      <section className={`flex-1 flex flex-col min-w-0 bg-[var(--bg)] ${focusMode ? 'fixed inset-0 z-[9999] bg-[var(--bg)]' : ''}`}>
       {/* Active editor */}
-      <div className="editor-active" id="editor-active" style={{ display: 'flex' }}>
-        <div className="editor-header">
+      <div className="flex-1 flex flex-col" id="editor-active">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border)] gap-4 shrink-0">
           <input
             ref={titleRef}
             type="text"
             id="chapter-title-input"
-            className="chapter-title-input"
+            className="flex-1 bg-transparent border-none text-xl font-semibold text-[var(--text)] outline-none min-w-0"
             placeholder="Judul bab"
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
           />
-          <div className="editor-meta">
-            <div className="export-wrap">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <div className="relative">
               <button
-                className="read-btn"
+                className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]"
                 id="export-btn"
                 title="Export"
                 onClick={() => setExportOpen(!exportOpen)}
               >
                 <i className="ti ti-download" aria-hidden="true"></i>
               </button>
-              <div className={`hidden ${exportOpen ? 'block' : ''} absolute top-[calc(100%+6px)] right-0 bg-[var(--surface-raised)] border border-[var(--border)] rounded min-w-[190px] z-50 overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.3)]`} id="export-dropdown">
-                <div className="px-[14px] py-[10px] text-xs cursor-pointer text-[var(--text)] flex items-center gap-2 hover:bg-[var(--surface)]" onClick={() => { setExportOpen(false); exportChapterMarkdown(); }}>
-                  <i className="ti ti-file-text" aria-hidden="true"></i> Bab ini (.md)
+              {exportOpen && (
+                <div className="absolute top-[calc(100%+6px)] right-0 bg-[var(--surface-raised)] border border-[var(--border)] rounded-[var(--radius)] min-w-[190px] z-50 overflow-hidden shadow-lg" id="export-dropdown">
+                  <div className="px-3.5 py-2.5 text-xs cursor-pointer text-[var(--text)] flex items-center gap-2 hover:bg-[var(--surface)]" onClick={() => { setExportOpen(false); exportChapterMarkdown(); }}>
+                    <i className="ti ti-file-text" aria-hidden="true"></i> Bab ini (.md)
+                  </div>
+                  <div className="h-px bg-[var(--border)]"></div>
+                  <div className="px-3.5 py-2.5 text-xs cursor-pointer text-[var(--text)] flex items-center gap-2 hover:bg-[var(--surface)]" onClick={() => { setExportOpen(false); exportAllMarkdown(); }}>
+                    <i className="ti ti-files" aria-hidden="true"></i> Semua bab (.md)
+                  </div>
                 </div>
-                <div className="h-px bg-[var(--border)]"></div>
-                <div className="px-[14px] py-[10px] text-xs cursor-pointer text-[var(--text)] flex items-center gap-2 hover:bg-[var(--surface)]" onClick={() => { setExportOpen(false); exportAllMarkdown(); }}>
-                  <i className="ti ti-files" aria-hidden="true"></i> Semua bab (.md)
-                </div>
-              </div>
+              )}
             </div>
-            <button className="read-btn" id="search-btn" title="Cari di semua bab (Ctrl+F)" onClick={() => setSearchOpen(true)}>
+            <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="search-btn" title="Cari di semua bab (Ctrl+F)" onClick={() => setSearchOpen(true)}>
               <i className="ti ti-search" aria-hidden="true"></i>
             </button>
-            <button className="read-btn" id="generator-btn" title="AI Generator Tools" onClick={() => setGeneratorOpen(true)}>
+            <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="generator-btn" title="AI Generator Tools" onClick={() => setGeneratorOpen(true)}>
               <i className="ti ti-dice" aria-hidden="true"></i>
             </button>
             <button
-              className="read-btn"
+              className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer rounded-[var(--radius)] transition-colors hover:bg-[var(--surface-raised)]"
               id="focus-btn"
               title={focusMode ? 'Keluar focus mode (Esc)' : 'Distraction-free mode (Alt+F)'}
               onClick={toggleFocusMode}
-              style={{ color: focusMode ? 'var(--accent)' : '' }}
+              style={{ color: focusMode ? 'var(--accent)' : 'var(--text-muted)' }}
             >
-              <i className={`ti ti-focus-2 ${focusMode ? 'active' : ''}`} aria-hidden="true"></i>
+              <i className="ti ti-focus-2" aria-hidden="true"></i>
             </button>
-            <button className="read-btn" id="versioning-btn" title="Riwayat Versi" onClick={() => setVersioningOpen(true)}>
+            <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="versioning-btn" title="Riwayat Versi" onClick={() => setVersioningOpen(true)}>
               <i className="ti ti-history" aria-hidden="true"></i>
             </button>
-            <button className="read-btn" id="theme-toggle-btn" title="Ganti tema">
+            <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="theme-toggle-btn" title="Ganti tema">
               <i className="ti ti-sun" aria-hidden="true"></i>
             </button>
-            <button className="read-btn" id="read-btn">
+            <button className="flex items-center justify-center gap-1 px-3 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="read-btn">
               <i className="ti ti-book" aria-hidden="true"></i> Baca
             </button>
-            <span id="save-indicator">{saveIndicatorText()}</span>
-            <span id="word-count">{wordCount.toLocaleString('id-ID')} kata</span>
+            <span className="text-xs text-[var(--text-muted)] ml-2" id="save-indicator">{saveIndicatorText()}</span>
+            <span className="text-xs text-[var(--text-muted)] ml-2" id="word-count">{wordCount.toLocaleString('id-ID')} kata</span>
           </div>
         </div>
 
-        <div className="editor-toolbar">
-          <button type="button" data-md="bold" title="Bold" data-shortcut="Ctrl+B" onClick={() => applyToolbar('bold')}>
+        <div className="flex items-center gap-1 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
+          <button type="button" className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" data-md="bold" title="Bold" data-shortcut="Ctrl+B" onClick={() => applyToolbar('bold')}>
             <i className="ti ti-bold" aria-hidden="true"></i>
           </button>
-          <button type="button" data-md="italic" title="Italic" data-shortcut="Ctrl+I" onClick={() => applyToolbar('italic')}>
+          <button type="button" className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" data-md="italic" title="Italic" data-shortcut="Ctrl+I" onClick={() => applyToolbar('italic')}>
             <i className="ti ti-italic" aria-hidden="true"></i>
           </button>
-          <button type="button" data-md="heading" title="Heading" data-shortcut="Ctrl+H" onClick={() => applyToolbar('heading')}>
+          <button type="button" className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" data-md="heading" title="Heading" data-shortcut="Ctrl+H" onClick={() => applyToolbar('heading')}>
             <i className="ti ti-heading" aria-hidden="true"></i>
           </button>
-          <button type="button" id="ai-polish-btn" title="AI Polish — rapikan teks (Ctrl+Shift+P)" data-shortcut="Ctrl+Shift+P">
+          <button type="button" className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="ai-polish-btn" title="AI Polish — rapikan teks (Ctrl+Shift+P)" data-shortcut="Ctrl+Shift+P">
             <i className="ti ti-sparkles" aria-hidden="true"></i>
           </button>
           <button
             type="button"
+            className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)] ml-auto"
             id="toggle-headers-btn"
             title={headersCollapsed ? 'Tampilkan navigasi & header' : 'Sembunyikan navigasi & header'}
             onClick={toggleHeadersCollapsed}
@@ -391,9 +384,9 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
           </button>
         </div>
 
-        <div className={`editor-typography-bar ${typographyCollapsed ? 'collapsed' : ''}`} id="editor-typography-bar">
-          <span className="typo-label">Font:</span>
-          <select id="editor-font-family" title="Font">
+        <div className={`flex items-center gap-3 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface)] text-xs shrink-0 transition-all duration-200 ${typographyCollapsed ? 'h-0 py-0 overflow-hidden border-b-0' : ''}`} id="editor-typography-bar">
+          <span className="text-[var(--text-muted)] shrink-0">Font:</span>
+          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-family" title="Font">
             <option value="literata">Literata</option>
             <option value="lora">Lora</option>
             <option value="inter">Inter</option>
@@ -401,39 +394,39 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
             <option value="georgia">Georgia</option>
             <option value="mono">Mono</option>
           </select>
-          <div className="typo-separator"></div>
-          <span className="typo-label">Ukuran:</span>
-          <select id="editor-font-size" title="Ukuran font">
+          <div className="w-px h-4 bg-[var(--border)]"></div>
+          <span className="text-[var(--text-muted)] shrink-0">Ukuran:</span>
+          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-size" title="Ukuran font">
             <option value="sm">Kecil</option>
-            <option value="md" selected>Sedang</option>
+            <option value="md">Sedang</option>
             <option value="lg">Besar</option>
             <option value="xl">XL</option>
           </select>
-          <div className="typo-separator"></div>
-          <span className="typo-label">Spasi:</span>
-          <select id="editor-font-spacing" title="Spasi baris">
+          <div className="w-px h-4 bg-[var(--border)]"></div>
+          <span className="text-[var(--text-muted)] shrink-0">Spasi:</span>
+          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-spacing" title="Spasi baris">
             <option value="tight">Rapat</option>
-            <option value="normal" selected>Normal</option>
+            <option value="normal">Normal</option>
             <option value="relaxed">Lebar</option>
           </select>
-          <div className="typo-separator"></div>
-          <button className="typo-btn" id="editor-paper-mode" title="Mode kertas bergaris">
+          <div className="w-px h-4 bg-[var(--border)]"></div>
+          <button className="flex items-center gap-1 px-2 py-1 bg-transparent border border-[var(--border)] rounded-[var(--radius)] text-[var(--text-muted)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]" id="editor-paper-mode" title="Mode kertas bergaris">
             <i className="ti ti-notebook" aria-hidden="true"></i> Kertas
           </button>
           <button
-            className="typography-bar-toggle"
+            className="flex items-center justify-center w-6 h-6 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] ml-auto"
             id="typography-bar-toggle"
             title={typographyCollapsed ? 'Tampilkan kontrol tipografi' : 'Sembunyikan kontrol tipografi'}
             onClick={toggleTypographyCollapsed}
           >
-            <i className="ti ti-chevron-up" aria-hidden="true"></i>
+            <i className={`ti ti-chevron-${typographyCollapsed ? 'down' : 'up'} transition-transform duration-200`} aria-hidden="true"></i>
           </button>
         </div>
 
         <textarea
           ref={textareaRef}
           id="editor-textarea"
-          className="editor-textarea"
+          className="flex-1 w-full px-6 py-4 bg-[var(--bg)] border-none text-[var(--text)] resize-none outline-none text-base leading-relaxed"
           placeholder="Mulai nulis di sini..."
           spellCheck={false}
           value={content}

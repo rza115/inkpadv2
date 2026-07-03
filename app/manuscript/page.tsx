@@ -35,10 +35,6 @@ function ManuscriptContent() {
     if (!projectId || initialized.current) return;
     initialized.current = true;
 
-    // Set body attributes for CSS
-    document.body.dataset.layout = "project";
-    document.body.dataset.page = "manuscript";
-
     // Load data
     loadChapters(projectId);
     loadAllCharacters(projectId);
@@ -91,12 +87,10 @@ function ManuscriptContent() {
 
   return (
     <Nav layout="project" title="Memuat…" projectId={projectId}>
-      <main id="page-main">
-        <div className="manuscript-shell">
-          <ChapterPanel projectId={projectId} />
-          <EditorPanel projectId={projectId} />
-          <ContextPanel projectId={projectId} />
-        </div>
+      <main id="page-main" className="flex flex-1 min-h-0 overflow-hidden">
+        <ChapterPanel projectId={projectId} />
+        <EditorPanel projectId={projectId} />
+        <ContextPanel projectId={projectId} />
       </main>
     </Nav>
   );
