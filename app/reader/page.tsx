@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useProjectStore } from "@/store/useProjectStore";
@@ -11,11 +11,12 @@ import { useReaderStore } from "@/store/useReaderStore";
 import { ReaderTopbar } from "@/components/reader/ReaderTopbar";
 import { ReaderTOC } from "@/components/reader/ReaderTOC";
 import { ReaderContent } from "@/components/reader/ReaderContent";
+import { Loading } from "@/components/ui";
 import type { Project } from "@/types/project";
 import type { Illustration } from "@/types/chapter";
 import { createClient } from "@/lib/supabase/client";
 
-export default function ReaderPage() {
+function ReaderContent_Page() {
   const searchParams = useSearchParams();
   const projectId = searchParams?.get("project");
 
@@ -300,5 +301,13 @@ export default function ReaderPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ReaderPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ReaderContent_Page />
+    </Suspense>
   );
 }

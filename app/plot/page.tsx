@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
@@ -15,7 +15,7 @@ import { ForeshadowModal } from "@/components/plot/ForeshadowModal";
 import type { Arc, Foreshadow, ArcFormData, ForeshadowFormData } from "@/types/plot";
 import type { Project } from "@/types/project";
 
-export default function PlotPage() {
+function PlotContent() {
   const searchParams = useSearchParams();
   const projectId = searchParams?.get("project");
 
@@ -234,5 +234,13 @@ export default function PlotPage() {
         chapters={chapters}
       />
     </>
+  );
+}
+
+export default function PlotPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <PlotContent />
+    </Suspense>
   );
 }

@@ -5,8 +5,6 @@ import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
 import type { EpubBook, EpubMetadata, EpubReaderPosition, EpubReaderSettings } from '@/types/epub';
 
-const supabase = createClient();
-
 interface EpubState {
   // Library state
   books: EpubBook[];
@@ -82,6 +80,7 @@ export const useEpubStore = create<EpubState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('epub_books')
         .select('*')
@@ -102,6 +101,7 @@ export const useEpubStore = create<EpubState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('epub_books')
         .insert([fields])
@@ -129,6 +129,8 @@ export const useEpubStore = create<EpubState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
+      const supabase = createClient();
+      
       // Get book to find files to delete
       const book = get().books.find(b => b.id === id);
       
