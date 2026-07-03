@@ -23,6 +23,20 @@
   --radius-lg: 12px;
   --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+
+  /* Novelist login theme colors */
+  --novelist-cream: #FAF6F0;
+  --novelist-card: #FFFFFF;
+  --novelist-ink: #221D2B;
+  --novelist-ink-soft: #6E6779;
+  --novelist-lavender: #9C8AC4;
+  --novelist-lavender-lt: #EDE8F7;
+  --novelist-pink: #DD5083;
+  --novelist-pink-dark: #B7376A;
+  --novelist-line: #E9E3F0;
+  --novelist-gold: #C79A4B;
+  --novelist-input-bg: #FCFAF7;
+  --novelist-placeholder: #B9B2C4;
 }
 
 [data-theme="dark"] {
