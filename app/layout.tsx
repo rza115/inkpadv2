@@ -50,26 +50,6 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
         />
-        {/* Set data-page attribute for legacy CSS */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            (function() {
-              const path = window.location.pathname;
-              const pageMap = {
-                '/characters': 'characters',
-                '/plot': 'plot',
-                '/worldbuilding': 'world',
-                '/notes': 'notes',
-                '/manuscript': 'manuscript',
-                '/reader': 'reader',
-                '/epub-reader': 'epub-reader',
-                '/epub-library': 'epub-library'
-              };
-              const page = pageMap[path] || '';
-              if (page) document.body.setAttribute('data-page', page);
-            })();
-          `
-        }} />
       </head>
       <body className="min-h-full">{children}</body>
     </html>
