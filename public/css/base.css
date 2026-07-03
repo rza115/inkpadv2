@@ -483,6 +483,7 @@ select {
 }
 .switch a { cursor: pointer; text-decoration: underline; }
 
+body[data-page="characters"] #character-grid,
 body[data-page="characters"] .char-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
