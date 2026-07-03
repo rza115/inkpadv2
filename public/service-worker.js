@@ -3,7 +3,7 @@
 // Data (Supabase) sengaja nggak disentuh di sini — itu urusan offline-queue.js,
 // biar nggak ada cache basi yang nimpa data asli pas online lagi.
 
-const CACHE_NAME = 'inkpad-shell-v32';
+const CACHE_NAME = 'inkpad-shell-v33';
 
 
 const SHELL_ASSETS = [
