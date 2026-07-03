@@ -20,10 +20,13 @@ export function WorldEntryCard({ entry, onClick }: WorldEntryCardProps) {
   const showEllipsis = (entry.content?.length || 0) > 140;
 
   return (
-    <div className="entry-card" onClick={onClick}>
-      <p className="entry-title">{entry.title}</p>
+    <div 
+      className="bg-surface border border-default rounded-[var(--radius-lg)] p-4 cursor-pointer transition-colors hover:border-accent"
+      onClick={onClick}
+    >
+      <p className="font-serif font-semibold text-base mb-2">{entry.title}</p>
       {preview && (
-        <p className="entry-preview">
+        <p className="text-sm text-muted line-clamp-3">
           {preview}{showEllipsis ? '…' : ''}
         </p>
       )}

@@ -117,18 +117,23 @@ function NotesContent() {
     } else {
       await createNote(projectId, data);
     }
+    handleCloseModal();
   };
 
   const handleDelete = async () => {
     if (!editingNote) return;
-    await deleteNote(editingNote.id);
+    const confirmed = confirm('Hapus catatan ini?');
+    if (confirmed) {
+      await deleteNote(editingNote.id);
+      handleCloseModal();
+    }
   };
 
   if (!projectId) {
     return (
-      <div style={{ padding: '24px' }}>
-        <p className="muted">
-          Tidak ada novel yang dipilih. Kembali ke <Link href="/">Project Hub</Link>.
+      <div className="p-6">
+        <p className="text-muted text-sm">
+          Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
         </p>
       </div>
     );
@@ -137,8 +142,8 @@ function NotesContent() {
   return (
     <>
       <main id="page-main">
-        <div className="notes-shell">
-          <div className="notes-toolbar">
+        <div className="max-w-[800px]">
+          <div className="mb-4">
             <Button variant="ghost" onClick={() => handleOpenModal()}>
               <i className="ti ti-plus" aria-hidden="true"></i> Catatan baru
             </Button>
@@ -147,15 +152,15 @@ function NotesContent() {
           {loading && <Loading />}
           
           {loadError && (
-            <p className="empty-msg" style={{ color: 'var(--danger)' }}>
+            <p className="text-sm text-[var(--danger)] mb-4">
               {loadError}
             </p>
           )}
 
           {!loading && !loadError && (
-            <div className="notes-list">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
               {notes.length === 0 ? (
-                <p className="empty-msg">
+                <p className="text-muted text-sm col-span-full text-center py-10">
                   Belum ada catatan. Buang ide random di sini dulu, rapiin belakangan.
                 </p>
               ) : (

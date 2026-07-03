@@ -42,19 +42,6 @@ function PlotContent() {
   const [isForeshadowModalOpen, setIsForeshadowModalOpen] = useState(false);
   const [editingForeshadow, setEditingForeshadow] = useState<Foreshadow | null>(null);
 
-  // Load CSS
-  useEffect(() => {
-    const cssFiles = ['/css/base.css', '/css/layout.css', '/css/components.css'];
-    cssFiles.forEach(href => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-      }
-    });
-  }, []);
-
   // Load project and data
   useEffect(() => {
     if (!projectId) return;
@@ -91,17 +78,24 @@ function PlotContent() {
 
   const handleSaveArc = async (data: ArcFormData) => {
     if (!projectId) return;
-    
+
     if (editingArc) {
       await updateArc(editingArc.id, data);
     } else {
       await createArc(projectId, data);
     }
+    setIsArcModalOpen(false);
+    setEditingArc(null);
   };
 
   const handleDeleteArc = async () => {
     if (!editingArc) return;
-    await deleteArc(editingArc.id);
+    const confirmed = confirm(`Hapus arc "${editingArc.title}"?`);
+    if (confirmed) {
+      await deleteArc(editingArc.id);
+      setIsArcModalOpen(false);
+      setEditingArc(null);
+    }
   };
 
   // Foreshadow handlers
@@ -117,41 +111,40 @@ function PlotContent() {
 
   const handleSaveForeshadow = async (data: ForeshadowFormData) => {
     if (!projectId) return;
-    
+
     if (editingForeshadow) {
       await updateForeshadow(editingForeshadow.id, data);
     } else {
       await createForeshadow(projectId, data);
     }
+    setIsForeshadowModalOpen(false);
+    setEditingForeshadow(null);
   };
 
   const handleDeleteForeshadow = async () => {
     if (!editingForeshadow) return;
-    await deleteForeshadow(editingForeshadow.id);
-  };
-
-  const handleToggleForeshadowStatus = async (foreshadow: Foreshadow) => {
-    try {
-      await toggleForeshadowStatus(foreshadow.id);
-    } catch (error) {
-      console.error('Failed to toggle status:', error);
+    const confirmed = confirm('Hapus entri foreshadow ini?');
+    if (confirmed) {
+      await deleteForeshadow(editingForeshadow.id);
+      setIsForeshadowModalOpen(false);
+      setEditingForeshadow(null);
     }
   };
 
   const handleDeleteForeshadowDirect = async (foreshadow: Foreshadow) => {
-    try {
-      await deleteForeshadow(foreshadow.id);
-    } catch (error) {
-      console.error('Failed to delete:', error);
-    }
+    await deleteForeshadow(foreshadow.id);
+  };
+
+  const handleToggleForeshadowStatus = async (foreshadow: Foreshadow) => {
+    await toggleForeshadowStatus(foreshadow.id);
   };
 
   if (!projectId) {
     return (
       <Nav layout="project" title="Plot">
         <main id="page-main">
-          <p className="muted" style={{ padding: '24px' }}>
-            Tidak ada novel yang dipilih. Kembali ke <Link href="/">Project Hub</Link>.
+          <p className="text-muted text-sm p-6">
+            Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
           </p>
         </main>
       </Nav>
@@ -164,20 +157,23 @@ function PlotContent() {
     <>
       <Nav layout="project" title={pageTitle} projectId={projectId}>
         <main id="page-main">
-          <div className="plot-shell">
+          <div className="max-w-[1000px]">
             {/* Arc Tracker */}
-            <div className="section-header">
-              <h1 className="section-title">Arc</h1>
-              <button className="ghost" onClick={handleNewArc}>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="font-serif text-xl font-semibold">Arc</h1>
+              <button 
+                className="px-3 py-1.5 bg-transparent border border-default text-primary rounded-[var(--radius)] text-sm cursor-pointer transition-colors hover:border-accent hover:text-accent"
+                onClick={handleNewArc}
+              >
                 <i className="ti ti-plus" aria-hidden="true"></i> Arc baru
               </button>
             </div>
-            <div className="arc-grid" id="arc-grid">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4 mb-12">
               {isLoading && arcs.length === 0 && (
-                <p className="empty-msg">Memuat…</p>
+                <p className="text-muted text-sm">Memuat…</p>
               )}
               {!isLoading && arcs.length === 0 && (
-                <p className="empty-msg">Belum ada arc. Klik &quot;Arc baru&quot; buat mulai.</p>
+                <p className="text-muted text-sm">Belum ada arc. Klik &quot;Arc baru&quot; buat mulai.</p>
               )}
               {arcs.map((arc) => (
                 <ArcCard key={arc.id} arc={arc} onClick={handleEditArc} />
@@ -185,19 +181,22 @@ function PlotContent() {
             </div>
 
             {/* Foreshadow Log */}
-            <div className="section-divider">
-              <div className="section-header">
-                <h1 className="section-title">Foreshadow Log</h1>
-                <button className="ghost" onClick={handleNewForeshadow}>
+            <div className="border-t border-default pt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="font-serif text-xl font-semibold">Foreshadow Log</h1>
+                <button 
+                  className="px-3 py-1.5 bg-transparent border border-default text-primary rounded-[var(--radius)] text-sm cursor-pointer transition-colors hover:border-accent hover:text-accent"
+                  onClick={handleNewForeshadow}
+                >
                   <i className="ti ti-plus" aria-hidden="true"></i> Tambah
                 </button>
               </div>
-              <div className="foreshadow-list" id="foreshadow-list">
+              <div className="border border-default rounded-[var(--radius-lg)] overflow-hidden">
                 {isLoading && foreshadows.length === 0 && (
-                  <p className="empty-msg">Memuat…</p>
+                  <p className="text-muted text-sm p-4">Memuat…</p>
                 )}
                 {!isLoading && foreshadows.length === 0 && (
-                  <p className="empty-msg">Belum ada entri foreshadow.</p>
+                  <p className="text-muted text-sm p-4">Belum ada entri foreshadow.</p>
                 )}
                 {foreshadows.map((foreshadow) => (
                   <ForeshadowItem

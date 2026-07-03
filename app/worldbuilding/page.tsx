@@ -95,9 +95,9 @@ function WorldbuildingContent() {
 
   if (!projectId) {
     return (
-      <div style={{ padding: '24px' }}>
-        <p className="muted">
-          Tidak ada novel yang dipilih. Kembali ke <Link href="/">Project Hub</Link>.
+      <div className="p-6">
+        <p className="text-muted text-sm">
+          Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
         </p>
       </div>
     );
@@ -106,7 +106,7 @@ function WorldbuildingContent() {
   return (
     <>
       <main id="page-main">
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
+        <div className="p-4 px-6 border-b border-default">
           <Button
             id="new-entry-btn"
             variant="primary"
@@ -116,32 +116,23 @@ function WorldbuildingContent() {
           </Button>
         </div>
 
-        <div className="world-groups" style={{ padding: '24px' }}>
+        <div className="p-6">
           {loading && <Loading />}
           
           {!loading && entries.length === 0 && (
-            <div className="empty-state">
-              <p className="muted">
+            <div className="text-center py-10">
+              <p className="text-muted text-sm">
                 Belum ada entry worldbuilding. Mulai dari lokasi, sistem kekuatan, atau sejarah dunia ceritamu.
               </p>
             </div>
           )}
 
           {!loading && entries.length > 0 && categories.map((category) => (
-            <div key={category} className="world-group" style={{ marginBottom: '32px' }}>
-              <h2 className="world-group-title" style={{ 
-                fontSize: '16px', 
-                fontWeight: '600',
-                marginBottom: '12px',
-                color: 'var(--text-primary)',
-              }}>
+            <div key={category} className="mb-8">
+              <h2 className="text-base font-semibold mb-3">
                 {category}
               </h2>
-              <div className="entry-grid" style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '16px',
-              }}>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
                 {groupedEntries[category].map((entry) => (
                   <WorldEntryCard
                     key={entry.id}

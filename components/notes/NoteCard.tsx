@@ -31,15 +31,18 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
   const assignBadge = getAssignmentBadge();
 
   return (
-    <div className="note-card" onClick={onClick}>
-      <p className="note-content">{note.content}</p>
-      <div className="note-footer">
+    <div 
+      className="bg-surface border border-default rounded-[var(--radius-lg)] p-4 cursor-pointer transition-colors hover:border-accent"
+      onClick={onClick}
+    >
+      <p className="text-sm mb-3 whitespace-pre-wrap">{note.content}</p>
+      <div className="flex items-center justify-between text-xs text-muted">
         {assignBadge ? (
-          <span className="note-assign-badge">{assignBadge}</span>
+          <span>{assignBadge}</span>
         ) : (
           <span></span>
         )}
-        <span className="note-date">{formatDate(note.created_at)}</span>
+        <span>{formatDate(note.created_at)}</span>
       </div>
     </div>
   );
