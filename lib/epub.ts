@@ -5,6 +5,36 @@
 import type { EpubMetadata } from '@/types/epub';
 
 /**
+ * Wait for JSZip to be loaded via CDN script.
+ * Polls with timeout to avoid race conditions.
+ */
+let jszipPromise: Promise<any> | null = null;
+
+function getJSZip(): Promise<any> {
+  if (jszipPromise) return jszipPromise;
+  jszipPromise = new Promise((resolve, reject) => {
+    if ((window as any).JSZip) {
+      resolve((window as any).JSZip);
+      return;
+    }
+    const maxWait = 15_000;
+    const pollMs = 50;
+    const start = Date.now();
+    const check = () => {
+      if ((window as any).JSZip) {
+        resolve((window as any).JSZip);
+      } else if (Date.now() - start > maxWait) {
+        reject(new Error('JSZip failed to load within timeout'));
+      } else {
+        setTimeout(check, pollMs);
+      }
+    };
+    setTimeout(check, pollMs);
+  });
+  return jszipPromise;
+}
+
+/**
  * Extract metadata from EPUB file
  * Requires JSZip to be loaded (load via CDN in components that use this)
  */
@@ -16,13 +46,7 @@ export async function extractEpubMetadata(file: File): Promise<EpubMetadata> {
   };
 
   try {
-    // Check if JSZip is available
-    if (typeof window === 'undefined' || !(window as any).JSZip) {
-      console.warn('JSZip not loaded, returning default metadata');
-      return defaultMeta;
-    }
-
-    const JSZip = (window as any).JSZip;
+    const JSZip = await getJSZip();
     const zip = await JSZip.loadAsync(file);
 
     // 1. Find container.xml → path to OPF

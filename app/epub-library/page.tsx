@@ -38,9 +38,9 @@ export default function EpubLibraryPage() {
     statusMessage: 'Mengupload…',
   });
 
-  // Load CSS files and JSZip
-  useEffect(() => {
-    const cssFiles = ['/css/base.css', '/css/layout.css', '/css/components.css', '/css/epub-reader.css'];
+    // Load CSS files and JSZip
+    useEffect(() => {
+      const cssFiles = ['/css/base.css', '/css/layout.css', '/css/components.css'];
     cssFiles.forEach(href => {
       if (!document.querySelector(`link[href="${href}"]`)) {
         const link = document.createElement('link');
@@ -137,6 +137,7 @@ export default function EpubLibraryPage() {
         }));
 
         await useEpubStore.getState().addBook({
+          user_id: user.id,
           title: metadata.title || file.name,
           author: metadata.author || null,
           cover_url: coverUrl,

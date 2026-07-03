@@ -79,13 +79,13 @@ function EpubReaderContent() {
     
     const loadBookData = async () => {
       await loadBooks();
-      const book = books.find((b) => b.id === bookId);
+      const book = useEpubStore.getState().books.find((b) => b.id === bookId);
       if (book) {
         setBookUrl(book.epub_url);
-        // Load saved reading position from localStorage
-        const saved = localStorage.getItem(`epub-position-${bookId}`);
-        if (saved) {
-          setSavedCfi(saved);
+        // Load saved reading position via store
+        const savedPos = useEpubStore.getState().loadReaderPosition(bookId);
+        if (savedPos?.cfi) {
+          setSavedCfi(savedPos.cfi);
         }
       }
     };
