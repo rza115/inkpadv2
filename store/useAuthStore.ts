@@ -44,7 +44,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
 
       // Listen for auth state changes
-      supabase.auth.onAuthStateChange((_event, newSession) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
         set({ user: newSession?.user ?? null });
         
         // Handle redirect on logout (if not already on login page)
@@ -55,6 +55,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           }
         }
       });
+
+      // Store subscription for cleanup (optional enhancement for future)
+      // Note: In practice, this listener should persist for app lifetime
     } catch (error) {
       console.error('Auth initialization error:', error);
       set({ isLoading: false, isInitialized: true });

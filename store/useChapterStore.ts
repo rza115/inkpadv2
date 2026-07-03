@@ -386,8 +386,14 @@ export const useChapterStore = create<ChapterState>((set, get) => ({
   },
 
   updateIllustrationCaption: async (id: string, caption: string) => {
-    const supabase = createClient();
-    await supabase.from('chapter_illustrations').update({ caption }).eq('id', id);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from('chapter_illustrations').update({ caption }).eq('id', id);
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Failed to update caption:', err.message);
+      throw err;
+    }
   },
 
   loadNotes: async (chapterId: string) => {

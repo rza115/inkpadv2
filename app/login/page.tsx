@@ -22,25 +22,6 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Load CSS files
-  useEffect(() => {
-    const cssFiles = [
-      '/css/base.css',
-      '/css/layout.css',
-      '/css/components.css',
-      '/css/splash.css'
-    ];
-    
-    cssFiles.forEach(href => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-      }
-    });
-  }, []);
-
   const toggleMode = () => {
     setMode(mode === "login" ? "signup" : "login");
     setError("");
@@ -175,9 +156,21 @@ export default function LoginPage() {
           <span>
             {mode === "login" ? "Belum punya akun?" : "Sudah punya akun?"}
           </span>{" "}
-          <a onClick={toggleMode} style={{ cursor: "pointer" }}>
+          <button 
+            type="button"
+            onClick={toggleMode} 
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'inherit', 
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: 0,
+              font: 'inherit'
+            }}
+          >
             {mode === "login" ? "Daftar" : "Masuk"}
-          </a>
+          </button>
         </p>
       </div>
     </div>

@@ -29,24 +29,6 @@ export default function HubPage() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [coverEditProject, setCoverEditProject] = useState<Project | null>(null);
 
-  // Load CSS files
-  useEffect(() => {
-    const cssFiles = [
-      '/css/base.css',
-      '/css/layout.css',
-      '/css/components.css'
-    ];
-    
-    cssFiles.forEach(href => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-      }
-    });
-  }, []);
-
   // Fetch projects on mount
   useEffect(() => {
     fetchProjects();
