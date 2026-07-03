@@ -1,4 +1,9 @@
-// js/modules/manuscript.js — PATCHED for Next.js
+// js/modules/manuscript.js — DEPRECATED (1161 lines)
+// REPLACED BY: /app/manuscript/page.tsx and /components/manuscript/*
+// This file contains the old vanilla JS manuscript editor logic.
+// Most functionality now exists in React components with proper state management.
+//
+// PATCHED for Next.js compatibility but should not be used for new features
 // global-search.js and random-generator.js are loaded separately as scripts
 
 function initManuscriptPage() {

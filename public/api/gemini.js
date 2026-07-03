@@ -1,4 +1,7 @@
 // api/gemini.js
+// DEPRECATED: This file is kept for backward compatibility only
+// New endpoint: /app/api/gemini/route.ts (Next.js App Router)
+//
 // Vercel Serverless Function — proxy ke Gemini API.
 // API key disimpan di Vercel Environment Variables, tidak pernah ke client.
 //

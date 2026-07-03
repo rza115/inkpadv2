@@ -2,7 +2,7 @@
   "name": "Inkpad",
   "short_name": "Inkpad",
   "description": "Aplikasi nulis & organizer buat light novel — manuscript, karakter, worldbuilding, plot.",
-  "start_url": "/index.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#1b1a17",

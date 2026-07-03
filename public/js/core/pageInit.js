@@ -1,4 +1,8 @@
 // js/core/pageInit.js
+// DEPRECATED: This file is obsolete with Next.js App Router
+// New pages use Next.js routing and React hooks for initialization
+// See /app/* for new page structure
+//
 // Registry pattern buat init logic per halaman.
 //
 // Tiap halaman manggil: pageInit.register('namaHalaman', initFunction)
