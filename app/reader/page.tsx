@@ -1,109 +1,304 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useProjectStore } from "@/store/useProjectStore";
+import { useChapterStore } from "@/store/useChapterStore";
+import { useCharacterStore } from "@/store/useCharacterStore";
+import { useWorldbuildingStore } from "@/store/useWorldbuildingStore";
+import { useReaderStore } from "@/store/useReaderStore";
+import { ReaderTopbar } from "@/components/reader/ReaderTopbar";
+import { ReaderTOC } from "@/components/reader/ReaderTOC";
+import { ReaderContent } from "@/components/reader/ReaderContent";
+import type { Project } from "@/types/project";
+import type { Illustration } from "@/types/chapter";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ReaderPage() {
-  const initialized = useRef(false);
+  const searchParams = useSearchParams();
+  const projectId = searchParams?.get("project");
 
+  const { projects } = useProjectStore();
+  const { chapters, loadChapters } = useChapterStore();
+  const { characters, loadCharacters } = useCharacterStore();
+  const { entries: worldEntries, loadEntries: loadWorldEntries } = useWorldbuildingStore();
+  const {
+    activeChapterIndex,
+    tocCollapsed,
+    setActiveChapter,
+    toggleTOC,
+    setTOCCollapsed,
+    loadPosition,
+    reset,
+  } = useReaderStore();
+
+  const [project, setProject] = useState<Project | null>(null);
+  const [illustrations, setIllustrations] = useState<Illustration[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load CSS files
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-
-    // Set body attributes that nav.js and pageInit.js expect
-    document.body.dataset.page = "reader";
-
-    // Load CSS files
     const cssFiles = [
-      '/css/base.css',
-      '/css/layout.css',
-      '/css/components.css',
-      '/css/reader.css'
+      "/css/base.css",
+      "/css/layout.css",
+      "/css/components.css",
+      "/css/reader.css",
     ];
-    cssFiles.forEach(href => {
+    cssFiles.forEach((href) => {
       if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
         link.href = href;
         document.head.appendChild(link);
       }
     });
-
-    // Load scripts in order
-    const scriptUrls = [
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-      "/js/core/supabase-client.js",
-      "/js/core/project-context.js",
-      "/js/core/pwa-register.js",
-      "/js/core/pageInit.js",
-      "/js/utils/markdown-render.js",
-      "/js/modules/projects.js",
-      "/js/modules/chapters.js",
-      "/js/modules/characters.js",
-      "/js/modules/worldbuilding.js",
-      "/js/modules/illustrations.js",
-      "/js/modules/theme.js",
-      "/js/modules/reader.js",
-    ];
-
-    let idx = 0;
-    function loadNext() {
-      if (idx >= scriptUrls.length) return;
-      const script = document.createElement("script");
-      script.src = scriptUrls[idx];
-      script.async = false;
-      script.onload = () => {
-        idx++;
-        loadNext();
-      };
-      script.onerror = () => {
-        idx++;
-        loadNext();
-      };
-      document.body.appendChild(script);
-    }
-    loadNext();
   }, []);
 
-  return (
-    <>
-      <header className="r-topbar">
-        <button className="r-topbar-btn" id="back-btn"><i className="ti ti-arrow-left" aria-hidden="true"></i> Editor</button>
-        <button className="r-topbar-btn" id="toc-btn"><i className="ti ti-layout-sidebar" aria-hidden="true"></i> <span className="toc-label">Daftar Isi</span></button>
-        <span className="r-topbar-title" id="topbar-title"></span>
-        <div className="r-controls">
-          <select className="r-font-select" id="font-family-select" title="Pilih font">
-            <option value="literata">Literata</option>
-            <option value="lora">Lora</option>
-            <option value="inter">Inter</option>
-            <option value="nunito">Nunito Sans</option>
-          </select>
-          <button className="r-ctrl-btn" id="font-sm" title="Kecilkan font">A<sup>-</sup></button>
-          <button className="r-ctrl-btn" id="font-lg" title="Besarkan font">A<sup>+</sup></button>
-          <div className="r-align-group" role="group" aria-label="Perataan teks">
-            <button className="r-ctrl-btn" id="align-left" data-text-align="left" title="Rata kiri"><i className="ti ti-align-left" aria-hidden="true"></i></button>
-            <button className="r-ctrl-btn" id="align-right" data-text-align="right" title="Rata kanan"><i className="ti ti-align-right" aria-hidden="true"></i></button>
-            <button className="r-ctrl-btn" id="align-justify" data-text-align="justify" title="Rata kanan-kiri"><i className="ti ti-align-justified" aria-hidden="true"></i></button>
-          </div>
-          <button className="r-ctrl-btn r-theme-btn" id="width-btn" title="Lebar kolom">⇔</button>
-          <button className="r-ctrl-btn r-theme-btn" id="theme-btn" title="Ganti tema"><i className="ti ti-sun" aria-hidden="true"></i></button>
-        </div>
-      </header>
+  // Sync topbar height CSS variable
+  useEffect(() => {
+    const syncTopbarHeight = () => {
+      const topbar = document.querySelector(".r-topbar") as HTMLElement;
+      if (topbar) {
+        document.documentElement.style.setProperty(
+          "--r-topbar-h",
+          `${topbar.offsetHeight}px`
+        );
+      }
+    };
 
-      <div className="r-body">
-        <aside className="r-toc" id="r-toc">
-          <div className="r-cover-box">
-            <div className="r-cover-img" id="r-cover"></div>
-            <p className="r-project-title" id="r-project-title">Memuat…</p>
+    syncTopbarHeight();
+    window.addEventListener("resize", syncTopbarHeight);
+
+    const topbar = document.querySelector(".r-topbar");
+    let resizeObserver: ResizeObserver | null = null;
+    if (topbar && window.ResizeObserver) {
+      resizeObserver = new ResizeObserver(syncTopbarHeight);
+      resizeObserver.observe(topbar);
+    }
+
+    return () => {
+      window.removeEventListener("resize", syncTopbarHeight);
+      if (resizeObserver && topbar) {
+        resizeObserver.unobserve(topbar);
+      }
+    };
+  }, []);
+
+  // Auto-collapse TOC on mobile
+  useEffect(() => {
+    if (window.innerWidth < 760) {
+      setTOCCollapsed(true);
+    }
+  }, [setTOCCollapsed]);
+
+  // Load project data
+  useEffect(() => {
+    if (!projectId) return;
+
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+
+        // Find project
+        const proj = projects.find((p) => p.id === projectId);
+        setProject(proj || null);
+
+        if (proj) {
+          document.title = `${proj.title} — Inkpad`;
+        }
+
+        // Load all data in parallel
+        await Promise.all([
+          loadChapters(projectId),
+          loadCharacters(projectId),
+          loadWorldEntries(projectId),
+        ]);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to load reader data:", error);
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [projectId, projects, loadChapters, loadCharacters, loadWorldEntries]);
+
+  // Load illustrations for active chapter
+  useEffect(() => {
+    if (!chapters || chapters.length === 0) return;
+
+    const activeChapter = chapters[activeChapterIndex];
+    if (!activeChapter) return;
+
+    const loadIllustrations = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("illustrations")
+          .select("*")
+          .eq("chapter_id", activeChapter.id)
+          .order("order_index");
+
+        if (error) throw error;
+        setIllustrations(data || []);
+      } catch (error) {
+        console.error("Failed to load illustrations:", error);
+        setIllustrations([]);
+      }
+    };
+
+    loadIllustrations();
+  }, [chapters, activeChapterIndex]);
+
+  // Determine initial chapter from URL or saved position
+  useEffect(() => {
+    if (!projectId || !chapters || chapters.length === 0) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const urlChapterId = params.get("chapterId");
+    const urlChapterIdx = parseInt(params.get("chapter") || "0", 10);
+
+    let initialIdx = 0;
+
+    // Try chapterId first (more stable)
+    if (urlChapterId) {
+      const foundIdx = chapters.findIndex((c) => c.id === urlChapterId);
+      if (foundIdx !== -1) {
+        initialIdx = foundIdx;
+      }
+    } else if (Number.isFinite(urlChapterIdx)) {
+      initialIdx = Math.min(
+        Math.max(urlChapterIdx, 0),
+        chapters.length - 1
+      );
+    }
+
+    // Check for saved position (higher priority)
+    const savedPosition = loadPosition(projectId);
+    if (
+      savedPosition &&
+      savedPosition.chapterIndex >= 0 &&
+      savedPosition.chapterIndex < chapters.length
+    ) {
+      initialIdx = savedPosition.chapterIndex;
+
+      // Restore scroll position after a short delay
+      setTimeout(() => {
+        const pane = document.getElementById("r-pane");
+        if (pane) {
+          pane.scrollTop = savedPosition.scrollY || 0;
+        }
+      }, 100);
+    }
+
+    setActiveChapter(initialIdx);
+  }, [projectId, chapters, loadPosition, setActiveChapter]);
+
+  // Handle chapter change
+  const handleChapterChange = useCallback(
+    (index: number) => {
+      setActiveChapter(index);
+
+      // Scroll to top
+      const pane = document.getElementById("r-pane");
+      if (pane) {
+        pane.scrollTop = 0;
+      }
+
+      // Update URL
+      const url = new URL(window.location.href);
+      url.searchParams.set("chapter", index.toString());
+      window.history.replaceState(null, "", url);
+    },
+    [setActiveChapter]
+  );
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      reset();
+    };
+  }, [reset]);
+
+  if (!projectId) {
+    return (
+      <div style={{ padding: "24px" }}>
+        <p>
+          Tidak ada novel yang dipilih. Kembali ke <Link href="/">Project Hub</Link>.
+        </p>
+      </div>
+    );
+  }
+
+  const activeChapter = chapters[activeChapterIndex] || null;
+  const chapterTitle = activeChapter?.title || "Tanpa judul";
+
+  return (
+    <div className="r-shell">
+      <ReaderTopbar
+        projectId={projectId}
+        chapterTitle={chapterTitle}
+        onTOCToggle={toggleTOC}
+      />
+
+      <div className="r-main">
+        {/* Project Info Sidebar */}
+        <aside className="r-project-info">
+          <div
+            id="r-cover"
+            className="r-cover"
+            style={
+              project?.cover_url
+                ? { backgroundImage: `url('${project.cover_url}')` }
+                : undefined
+            }
+          >
+            {!project?.cover_url && (
+              <i className="ti ti-book-2" aria-hidden="true"></i>
+            )}
           </div>
-          <nav className="r-toc-list" id="r-toc-list"></nav>
+          <h3 id="r-project-title" className="r-project-title">
+            {project?.title || "Memuat..."}
+          </h3>
         </aside>
 
-        <main className="r-pane" id="r-pane">
-          <div className="r-column" id="r-column">
-            <p className="r-loading">Memuat novel…</p>
+        {/* Table of Contents */}
+        <ReaderTOC
+          chapters={chapters}
+          activeIndex={activeChapterIndex}
+          collapsed={tocCollapsed}
+          onChapterSelect={handleChapterChange}
+          onToggle={toggleTOC}
+        />
+
+        {/* Main Content */}
+        {isLoading ? (
+          <div id="r-pane">
+            <div id="r-column">
+              <p className="r-loading">Memuat...</p>
+            </div>
           </div>
-        </main>
+        ) : chapters.length === 0 ? (
+          <div id="r-pane">
+            <div id="r-column">
+              <p className="r-loading">Novel ini belum punya bab.</p>
+            </div>
+          </div>
+        ) : (
+          <ReaderContent
+            projectId={projectId}
+            chapter={activeChapter}
+            chapterIndex={activeChapterIndex}
+            chapters={chapters}
+            illustrations={illustrations}
+            characters={characters}
+            worldEntries={worldEntries}
+            onChapterChange={handleChapterChange}
+          />
+        )}
       </div>
-    </>
+    </div>
   );
 }
