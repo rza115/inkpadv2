@@ -522,6 +522,36 @@ select {
   .ai-panel-arrow { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); transform: rotate(90deg); height: 32px; }
 }
 
+/* ───────── Editor Typography — Font, Size, Spacing, Paper Mode ───────── */
+.editor-textarea { font-family: inherit; }
+.ef-literata { font-family: 'Literata', Georgia, serif; }
+.ef-lora { font-family: 'Lora', Georgia, serif; }
+.ef-inter { font-family: 'Inter', -apple-system, sans-serif; }
+.ef-nunito { font-family: 'Nunito', -apple-system, sans-serif; }
+.ef-georgia { font-family: Georgia, 'Times New Roman', serif; }
+.ef-mono { font-family: 'Courier New', Courier, monospace; }
+
+.efs-sm { font-size: 14px; }
+.efs-md { font-size: 16px; }
+.efs-lg { font-size: 18px; }
+.efs-xl { font-size: 20px; }
+
+.esp-tight { line-height: 1.4; }
+.esp-normal { line-height: 1.7; }
+.esp-relaxed { line-height: 2.0; }
+
+.paper-mode {
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 30px,
+    var(--border) 30px,
+    var(--border) 31px
+  );
+  background-attachment: local;
+  line-height: 31px !important;
+  padding-top: 4px;
+}
+
 /* ───────── Reading Mode ───────── */
 /* Typography */
 .r-column {
