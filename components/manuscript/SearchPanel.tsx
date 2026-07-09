@@ -10,6 +10,8 @@ import { useChapterStore } from '@/store/useChapterStore';
 interface SearchPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  activeChapterId?: string | null;
+  getCurrentContent?: () => string;
 }
 
 interface SearchResult {
@@ -19,7 +21,7 @@ interface SearchResult {
   lineIndex: number;
 }
 
-export function SearchPanel({ isOpen, onClose }: SearchPanelProps) {
+export function SearchPanel({ isOpen, onClose, activeChapterId, getCurrentContent }: SearchPanelProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [replaceQuery, setReplaceQuery] = useState('');
   const [caseSensitive, setCaseSensitive] = useState(false);
@@ -44,10 +46,10 @@ export function SearchPanel({ isOpen, onClose }: SearchPanelProps) {
     chapters.forEach((ch) => {
       if (statusFilter !== 'all' && ch.status !== statusFilter) return;
 
-      const content = ch.content || '';
+      const content = (ch.id === activeChapterId && getCurrentContent) ? getCurrentContent() : (ch.content || '');
       const lines = content.split('\n');
 
-      lines.forEach((line, idx) => {
+      lines.forEach((line: string, idx: number) => {
         let match = false;
         const testLine = caseSensitive ? line : line.toLowerCase();
         const testQuery = caseSensitive ? query : query.toLowerCase();
@@ -73,7 +75,7 @@ export function SearchPanel({ isOpen, onClose }: SearchPanelProps) {
     setResults(found);
     setCurrentResultIndex(0);
     setHasSearched(true);
-  }, [searchQuery, chapters, caseSensitive, wholeWord, statusFilter]);
+  }, [searchQuery, chapters, caseSensitive, wholeWord, statusFilter, activeChapterId, getCurrentContent]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {

@@ -480,7 +480,7 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
     </section>
 
       {/* Overlay Panels */}
-      <SearchPanel isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SearchPanel isOpen={searchOpen} onClose={() => setSearchOpen(false)} activeChapterId={activeChapter?.id} getCurrentContent={() => content} />
       <GeneratorPanel isOpen={generatorOpen} onClose={() => setGeneratorOpen(false)} />
       <VersioningPanel isOpen={versioningOpen} onClose={() => setVersioningOpen(false)} />
     </>
