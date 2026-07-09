@@ -7,6 +7,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Nav } from '@/components/Nav';
 import { useCharacterStore } from '@/store/useCharacterStore';
 import { Loading } from '@/components/ui';
 import { CharacterCard, NewCharacterCard } from '@/components/characters/CharacterCard';
@@ -18,6 +19,8 @@ function CharactersContent() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('project');
   const openId = searchParams.get('open');
+
+  const pageTitle = projectId ? 'Karakter' : 'Novel tidak ditemukan';
   
   const { characters, loading, loadCharacters, createCharacter, updateCharacter, deleteCharacter } = useCharacterStore();
   
@@ -85,16 +88,18 @@ function CharactersContent() {
 
   if (!projectId) {
     return (
-      <div className="p-6">
-        <p className="text-muted text-sm">
-          Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
-        </p>
-      </div>
+      <Nav layout="project" title={pageTitle} projectId={null}>
+        <main id="page-main">
+          <p className="text-muted text-sm p-6">
+            Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
+          </p>
+        </main>
+      </Nav>
     );
   }
 
   return (
-    <>
+    <Nav layout="project" title={pageTitle} projectId={projectId}>
       <main id="page-main">
         <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-4 max-w-[900px]">
           {loading && <Loading />}
@@ -128,7 +133,7 @@ function CharactersContent() {
         onSave={handleSave}
         onDelete={editingCharacter ? handleDelete : undefined}
       />
-    </>
+    </Nav>
   );
 }
 

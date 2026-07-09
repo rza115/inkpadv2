@@ -7,6 +7,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Nav } from '@/components/Nav';
 import { useNotesStore } from '@/store/useNotesStore';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Loading } from '@/components/ui';
@@ -33,6 +34,7 @@ function NotesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('project');
+  const pageTitle = projectId ? 'Quick notes' : 'Novel tidak ditemukan';
   const { notes, loading, loadNotes, createNote, updateNote, deleteNote } = useNotesStore();
   
   const [chapters, setChapters] = useState<ChapterOption[]>([]);
@@ -131,17 +133,19 @@ function NotesContent() {
 
   if (!projectId) {
     return (
-      <div className="p-6">
-        <p className="text-muted text-sm">
-          Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
-        </p>
-      </div>
+      <Nav layout="project" title={pageTitle} projectId={null}>
+        <main id="page-main">
+          <p className="text-muted text-sm p-6">
+            Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
+          </p>
+        </main>
+      </Nav>
     );
   }
 
   return (
-    <>
-      <main id="page-main">
+    <Nav layout="project" title={pageTitle} projectId={projectId}>
+        <main id="page-main">
         <div className="max-w-[800px]">
           <div className="mb-4">
             <Button variant="ghost" onClick={() => handleOpenModal()}>
@@ -187,7 +191,7 @@ function NotesContent() {
         onSave={handleSave}
         onDelete={editingNote ? handleDelete : undefined}
       />
-    </>
+    </Nav>
   );
 }
 

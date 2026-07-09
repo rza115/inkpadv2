@@ -7,6 +7,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Nav } from '@/components/Nav';
 import { useWorldbuildingStore } from '@/store/useWorldbuildingStore';
 import { useCharacterStore } from '@/store/useCharacterStore';
 import { Loading, Button } from '@/components/ui';
@@ -19,6 +20,7 @@ function WorldbuildingContent() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('project');
   const openId = searchParams.get('open');
+  const pageTitle = projectId ? 'Worldbuilding' : 'Novel tidak ditemukan';
   
   const { entries, loading: entriesLoading, loadEntries, createEntry, updateEntry, deleteEntry } = useWorldbuildingStore();
   const { characters, loading: charactersLoading, loadCharacters } = useCharacterStore();
@@ -95,16 +97,18 @@ function WorldbuildingContent() {
 
   if (!projectId) {
     return (
-      <div className="p-6">
-        <p className="text-muted text-sm">
-          Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
-        </p>
-      </div>
+      <Nav layout="project" title={pageTitle} projectId={null}>
+        <main id="page-main">
+          <p className="text-muted text-sm p-6">
+            Tidak ada novel yang dipilih. Kembali ke <Link href="/" className="text-accent-deep underline">Project Hub</Link>.
+          </p>
+        </main>
+      </Nav>
     );
   }
 
   return (
-    <>
+    <Nav layout="project" title={pageTitle} projectId={projectId}>
       <main id="page-main">
         <div className="p-4 px-6 border-b border-default">
           <Button
@@ -157,7 +161,7 @@ function WorldbuildingContent() {
         onDelete={editingEntry ? handleDelete : undefined}
         onOpenEntry={handleOpenModal}
       />
-    </>
+    </Nav>
   );
 }
 
