@@ -366,6 +366,104 @@ select {
 .versioning-empty i { font-size: 32px; display: block; margin-bottom: 12px; }
 .versioning-empty p { font-size: 13px; margin: 0 0 4px; }
 
+/* ───────── Versioning Preview Modal ───────── */
+.versioning-preview-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.versioning-preview-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+.versioning-preview-content {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: min(90vw, 700px);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+.versioning-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.versioning-preview-header h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--text);
+  flex: 1;
+}
+.versioning-preview-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.versioning-preview-close {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.versioning-preview-close:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.versioning-preview-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.versioning-preview-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Literata', Georgia, serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.versioning-preview-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+}
+.versioning-btn-restore {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 12px;
+  transition: opacity 0.15s;
+}
+.versioning-btn-restore:hover { opacity: 0.9; }
+
 /* ───────── Badge ───────── */
 .badge {
   font-size: 11px;
