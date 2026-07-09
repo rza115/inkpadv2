@@ -82,9 +82,9 @@ export default function LoginPage() {
         <div className="w-full max-w-sm bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8 shadow-sm">
           <div className="flex items-baseline gap-1 mb-1">
             <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
-            <span className="w-0.5 h-6 bg-[var(--accent)] cursor-blink" aria-hidden="true"></span>
-          </div>
-          <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">Memuat…</p>
+          <span className="w-0.5 h-6 bg-[var(--accent)] cursor" aria-hidden="true"></span>
+        </div>
+        <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">Memuat…</p>
         </div>
       </div>
     );
@@ -96,7 +96,7 @@ export default function LoginPage() {
         {/* Brand */}
         <div className="flex items-baseline gap-1 mb-1">
           <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
-          <span className="w-0.5 h-6 bg-[var(--accent)] cursor-blink" aria-hidden="true"></span>
+          <span className="w-0.5 h-6 bg-[var(--accent)] cursor" aria-hidden="true"></span>
         </div>
         <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">
           {mode === "login" 
