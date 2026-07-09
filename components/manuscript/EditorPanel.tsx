@@ -21,6 +21,13 @@ function getLocalStorage(key: string, defaultValue: boolean): boolean {
   return defaultValue;
 }
 
+function getLocalStorageString(key: string, defaultValue: string): string {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(key) || defaultValue;
+  }
+  return defaultValue;
+}
+
 export function EditorPanel({ projectId }: EditorPanelProps) {
   const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt } = useChapterStore();
   
@@ -34,6 +41,12 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
   const [versioningOpen, setVersioningOpen] = useState(false);
   const [headersCollapsed, setHeadersCollapsed] = useState(() => getLocalStorage('inkpad_headers_collapsed', false));
   const [typographyCollapsed, setTypographyCollapsed] = useState(() => getLocalStorage('inkpad_typography_bar_collapsed', false));
+  
+  // Typography state — loaded from localStorage, applied as CSS classes on textarea
+  const [fontFamily, setFontFamily] = useState(() => getLocalStorageString('inkpad_editor_font', 'literata'));
+  const [fontSize, setFontSize] = useState(() => getLocalStorageString('inkpad_editor_fontsize', 'md'));
+  const [fontSpacing, setFontSpacing] = useState(() => getLocalStorageString('inkpad_editor_spacing', 'normal'));
+  const [paperMode, setPaperMode] = useState(() => getLocalStorage('inkpad_editor_paper', false));
 
   const titleSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const contentSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -386,7 +399,7 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
 
         <div className={`flex items-center gap-3 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface)] text-xs shrink-0 transition-all duration-200 ${typographyCollapsed ? 'h-0 py-0 overflow-hidden border-b-0' : ''}`} id="editor-typography-bar">
           <span className="text-[var(--text-muted)] shrink-0">Font:</span>
-          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-family" title="Font">
+          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-family" title="Font" value={fontFamily} onChange={(e) => { const v = e.target.value; setFontFamily(v); localStorage.setItem('inkpad_editor_font', v); }}>
             <option value="literata">Literata</option>
             <option value="lora">Lora</option>
             <option value="inter">Inter</option>
@@ -396,7 +409,7 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
           </select>
           <div className="w-px h-4 bg-[var(--border)]"></div>
           <span className="text-[var(--text-muted)] shrink-0">Ukuran:</span>
-          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-size" title="Ukuran font">
+          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-size" title="Ukuran font" value={fontSize} onChange={(e) => { const v = e.target.value; setFontSize(v); localStorage.setItem('inkpad_editor_fontsize', v); }}>
             <option value="sm">Kecil</option>
             <option value="md">Sedang</option>
             <option value="lg">Besar</option>
@@ -404,13 +417,13 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
           </select>
           <div className="w-px h-4 bg-[var(--border)]"></div>
           <span className="text-[var(--text-muted)] shrink-0">Spasi:</span>
-          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-spacing" title="Spasi baris">
+          <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-spacing" title="Spasi baris" value={fontSpacing} onChange={(e) => { const v = e.target.value; setFontSpacing(v); localStorage.setItem('inkpad_editor_spacing', v); }}>
             <option value="tight">Rapat</option>
             <option value="normal">Normal</option>
             <option value="relaxed">Lebar</option>
           </select>
           <div className="w-px h-4 bg-[var(--border)]"></div>
-          <button className="flex items-center gap-1 px-2 py-1 bg-transparent border border-[var(--border)] rounded-[var(--radius)] text-[var(--text-muted)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]" id="editor-paper-mode" title="Mode kertas bergaris">
+          <button className={`flex items-center gap-1 px-2 py-1 bg-transparent border rounded-[var(--radius)] cursor-pointer transition-colors ${paperMode ? 'border-[var(--accent)] text-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'}`} id="editor-paper-mode" title="Mode kertas bergaris" onClick={() => { const next = !paperMode; setPaperMode(next); localStorage.setItem('inkpad_editor_paper', String(next)); }}>
             <i className="ti ti-notebook" aria-hidden="true"></i> Kertas
           </button>
           <button
@@ -426,7 +439,7 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
         <textarea
           ref={textareaRef}
           id="editor-textarea"
-          className="flex-1 w-full px-6 py-4 bg-[var(--bg)] border-none text-[var(--text)] resize-none outline-none text-base leading-relaxed"
+          className={`editor-textarea flex-1 w-full px-6 py-4 bg-[var(--bg)] border-none text-[var(--text)] resize-none outline-none text-base leading-relaxed ef-${fontFamily} efs-${fontSize} esp-${fontSpacing}${paperMode ? ' paper-mode' : ''}`}
           placeholder="Mulai nulis di sini..."
           spellCheck={false}
           value={content}
