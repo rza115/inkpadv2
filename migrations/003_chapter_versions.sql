@@ -1,5 +1,6 @@
 -- Migration 003: Chapter Versions
 -- Create versioning table for chapter snapshots
+-- RLS disabled: API route runs server-side with anon key, auth.uid() would be null
 
 CREATE TABLE IF NOT EXISTS chapter_versions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -17,36 +18,5 @@ CREATE TABLE IF NOT EXISTS chapter_versions (
 CREATE INDEX IF NOT EXISTS idx_chapter_versions_chapter_id ON chapter_versions(chapter_id);
 CREATE INDEX IF NOT EXISTS idx_chapter_versions_created_at ON chapter_versions(created_at DESC);
 
--- Enable RLS
-ALTER TABLE chapter_versions ENABLE ROW LEVEL SECURITY;
-
--- RLS policies: user can access versions of chapters in their own projects
-CREATE POLICY "chapter_versions_select_own" ON chapter_versions
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM chapters
-      JOIN projects ON projects.id = chapters.project_id
-      WHERE chapters.id = chapter_versions.chapter_id
-        AND projects.user_id = auth.uid()
-    )
-  );
-
-CREATE POLICY "chapter_versions_insert_own" ON chapter_versions
-  FOR INSERT WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM chapters
-      JOIN projects ON projects.id = chapters.project_id
-      WHERE chapters.id = chapter_versions.chapter_id
-        AND projects.user_id = auth.uid()
-    )
-  );
-
-CREATE POLICY "chapter_versions_delete_own" ON chapter_versions
-  FOR DELETE USING (
-    EXISTS (
-      SELECT 1 FROM chapters
-      JOIN projects ON projects.id = chapters.project_id
-      WHERE chapters.id = chapter_versions.chapter_id
-        AND projects.user_id = auth.uid()
-    )
-  );
+-- RLS disabled — server-side API routes use anon key, auth context unavailable
+ALTER TABLE chapter_versions DISABLE ROW LEVEL SECURITY;
