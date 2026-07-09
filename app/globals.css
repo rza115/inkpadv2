@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* ===================================================================
    Global CSS Variables — Light & Dark Themes
@@ -18,6 +16,7 @@
   --accent-deep: #b0742f;
   --accent-text: #fcfbf9;
   --accent-hover: rgba(214, 138, 60, 0.15);
+  --success: #27ae60;
   --danger: #c0392b;
   --radius: 8px;
   --radius-lg: 12px;
@@ -50,6 +49,7 @@
   --accent-deep: #dba156;
   --accent-text: #fcfbf9;
   --accent-hover: rgba(214, 138, 60, 0.15);
+  --success: #2ecc71;
   --danger: #e74c3c;
 }
 
@@ -64,6 +64,7 @@
   --accent-deep: #9e732f;
   --accent-text: #fcfbf9;
   --accent-hover: rgba(184, 134, 61, 0.15);
+  --success: #27ae60;
   --danger: #c0392b;
 }
 
@@ -78,6 +79,7 @@
   --accent-deep: #5da05d;
   --accent-text: #1a241a;
   --accent-hover: rgba(122, 184, 122, 0.15);
+  --success: #27ae60;
   --danger: #c0392b;
 }
 
@@ -92,6 +94,7 @@
   --accent-deep: #5a4bd1;
   --accent-text: #ffffff;
   --accent-hover: rgba(108, 92, 231, 0.15);
+  --success: #27ae60;
   --danger: #c0392b;
 }
 
@@ -99,11 +102,16 @@
    Tailwind-style Utilities (gap in theme)
    =================================================================== */
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
+/* ── Custom theme utilities (mapped from CSS vars) ── */
+.bg-surface { background: var(--surface); }
+.bg-surface-raised { background: var(--surface-raised); }
+.bg-accent { background: var(--accent); }
+
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent); }
+
+.border-default { border-color: var(--border); }
+.border-accent { border-color: var(--accent); }
 
 /* ───────── Typography Helpers ───────── */
 h1, h2, h3, h4, h5, h6 { font-weight: 600; }
