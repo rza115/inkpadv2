@@ -49,6 +49,8 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
         />
+        {/* Service Worker - unregister stale, register current */}
+        <script src="/js/sw-register.js" defer></script>
       </head>
       <body className="min-h-full bg-[var(--bg)] text-[var(--text)]">{children}</body>
     </html>
