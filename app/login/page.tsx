@@ -82,9 +82,9 @@ export default function LoginPage() {
         <div className="w-full max-w-sm bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8 shadow-sm">
           <div className="flex items-baseline gap-1 mb-1">
             <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
-          <span className="w-0.5 h-6 bg-[var(--accent)] cursor" aria-hidden="true"></span>
-        </div>
-        <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">Memuat…</p>
+            <span className="w-0.5 h-6 bg-[var(--accent)] cursor-blink" aria-hidden="true"></span>
+          </div>
+          <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">Memuat…</p>
         </div>
       </div>
     );
@@ -96,93 +96,192 @@ export default function LoginPage() {
         {/* Brand */}
         <div className="flex items-baseline gap-1 mb-1">
           <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
-          <span className="w-0.5 h-6 bg-[var(--accent)] cursor" aria-hidden="true"></span>
+          <span className="w-0.5 h-6 bg-[var(--accent)] cursor-blink" aria-hidden="true"></span>
         </div>
-        <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">
-          {mode === "login" 
-            ? "Masuk untuk lanjut menulis" 
-            : "Buat akun baru"}
-        </p>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          <div>
-            <label 
-              htmlFor="email"
-              className="block text-xs text-[var(--text-muted)] mb-1.5"
+        {/* Card */}
+        <div 
+          className="bg-white border rounded-[18px] shadow-[0_24px_60px_-20px_rgba(34,29,43,0.16),_0_2px_10px_rgba(34,29,43,0.04)] p-11 pb-9 relative"
+          style={{ borderColor: 'var(--novelist-line)' }}
+        >
+          {/* Gradient top border */}
+          <div 
+            className="absolute top-0 left-6 right-6 h-[3px] rounded-b-[3px]"
+            style={{ background: 'linear-gradient(90deg, var(--novelist-lavender), var(--novelist-pink))' }}
+          ></div>
+
+          {/* Brand */}
+          <div className="flex items-baseline gap-2.5 mb-1.5">
+            <h1 
+              className="font-serif font-semibold text-[32px] tracking-[0.2px]"
+              style={{ fontFamily: 'var(--font-serif)', color: 'var(--novelist-ink)' }}
             >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
+              Inkpad
+            </h1>
+            <span 
+              className="w-1.5 h-1.5 rounded-full -translate-y-2"
+              style={{ background: 'var(--novelist-pink)' }}
+            ></span>
+          </div>
+          
+          <p className="text-sm mb-8" style={{ color: 'var(--novelist-ink-soft)' }}>
+            {mode === "login" ? "Masuk untuk lanjut menulis" : "Buat akun baru"}
+          </p>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label 
+                htmlFor="email"
+                className="block text-[12.5px] font-medium uppercase tracking-[0.06em] mb-2"
+                style={{ color: 'var(--novelist-ink-soft)' }}
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nama@email.com"
+                required
+                autoComplete="email"
+                disabled={isSubmitting}
+                className="w-full h-[46px] px-3.5 border rounded-[10px] text-[14.5px] outline-none transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  borderColor: 'var(--novelist-line)',
+                  background: 'var(--novelist-input-bg)',
+                  color: 'var(--novelist-ink)',
+                  fontFamily: 'var(--font-sans)'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--novelist-lavender)';
+                  e.target.style.background = '#FFFFFF';
+                  e.target.style.boxShadow = '0 0 0 3px var(--novelist-lavender-lt)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--novelist-line)';
+                  e.target.style.background = 'var(--novelist-input-bg)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </div>
+
+            <div>
+              <label 
+                htmlFor="password"
+                className="block text-[12.5px] font-medium uppercase tracking-[0.06em] mb-2"
+                style={{ color: 'var(--novelist-ink-soft)' }}
+              >
+                Kata sandi
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                minLength={6}
+                disabled={isSubmitting}
+                className="w-full h-[46px] px-3.5 border rounded-[10px] text-[14.5px] outline-none transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  borderColor: 'var(--novelist-line)',
+                  background: 'var(--novelist-input-bg)',
+                  color: 'var(--novelist-ink)',
+                  fontFamily: 'var(--font-sans)'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--novelist-lavender)';
+                  e.target.style.background = '#FFFFFF';
+                  e.target.style.boxShadow = '0 0 0 3px var(--novelist-lavender-lt)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--novelist-line)';
+                  e.target.style.background = 'var(--novelist-input-bg)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </div>
+
+            <button 
+              type="submit" 
               disabled={isSubmitting}
-              className="w-full px-3 py-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] text-sm outline-none transition-all focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
-            />
+              className="w-full h-12 mt-2 border-none rounded-[10px] text-white font-semibold text-[15px] tracking-[0.02em] cursor-pointer transition-all duration-[120ms] disabled:opacity-50 disabled:cursor-not-allowed active:translate-y-px active:scale-[0.99]"
+              style={{
+                background: 'linear-gradient(135deg, var(--novelist-lavender), var(--novelist-pink-dark))',
+                boxShadow: '0 10px 24px -8px rgba(183,55,106,0.45)',
+                fontFamily: 'var(--font-sans)'
+              }}
+              onMouseEnter={(e) => {
+                if (!isSubmitting) {
+                  e.currentTarget.style.filter = 'brightness(1.05)';
+                  e.currentTarget.style.boxShadow = '0 12px 28px -8px rgba(183,55,106,0.55)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.filter = 'brightness(1)';
+                e.currentTarget.style.boxShadow = '0 10px 24px -8px rgba(183,55,106,0.45)';
+              }}
+            >
+              {isSubmitting 
+                ? "Memproses…" 
+                : mode === "login" ? "Masuk" : "Daftar"}
+            </button>
+            
+            {/* Error Message */}
+            {error && (
+              <p className="text-sm mt-2.5" style={{ color: 'var(--danger)' }}>
+                {error}
+              </p>
+            )}
+            
+            {/* Success Message */}
+            {isSuccess && (
+              <p className="text-sm mt-2.5" style={{ color: 'var(--novelist-lavender)' }}>
+                Akun dibuat. Kalau email confirmation aktif, cek inbox dulu sebelum masuk.
+              </p>
+            )}
+          </form>
+
+          {/* Divider */}
+          <div className="flex items-center gap-2.5 my-7">
+            <div className="flex-1 h-px" style={{ background: 'var(--novelist-line)' }}></div>
+            <span 
+              className="text-[11px] uppercase tracking-[0.08em]"
+              style={{ color: '#C7BFD4' }}
+            >
+              Inkpad
+            </span>
+            <div className="flex-1 h-px" style={{ background: 'var(--novelist-line)' }}></div>
           </div>
 
-          <div>
-            <label 
-              htmlFor="password"
-              className="block text-xs text-[var(--text-muted)] mb-1.5"
+          {/* Mode Toggle */}
+          <p className="text-center text-[13.5px]" style={{ color: 'var(--novelist-ink-soft)' }}>
+            <span>
+              {mode === "login" ? "Belum punya akun?" : "Sudah punya akun?"}
+            </span>{" "}
+            <button 
+              type="button"
+              onClick={toggleMode}
+              className="font-semibold cursor-pointer border-b pb-px transition-all duration-150"
+              style={{ 
+                color: 'var(--novelist-pink-dark)',
+                borderColor: 'rgba(183,55,106,0.35)',
+                background: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--novelist-pink-dark)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(183,55,106,0.35)';
+              }}
             >
-              Kata sandi
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              minLength={6}
-              disabled={isSubmitting}
-              className="w-full px-3 py-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] text-sm outline-none transition-all focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full px-3 py-2.5 bg-[var(--accent-deep)] text-[var(--accent-text)] border-none rounded-[var(--radius)] font-semibold text-sm cursor-pointer transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting 
-              ? "Memproses…" 
-              : mode === "login" ? "Masuk" : "Daftar"}
-          </button>
-          
-          {/* Error Message */}
-          {error && (
-            <p className="text-sm text-[var(--danger)] mt-2.5">
-              {error}
-            </p>
-          )}
-          
-          {/* Success Message */}
-          {isSuccess && (
-            <p className="text-sm text-[var(--accent)] mt-2.5">
-              Akun dibuat. Kalau email confirmation aktif, cek inbox dulu sebelum masuk.
-            </p>
-          )}
-        </form>
-
-        {/* Mode Toggle */}
-        <p className="text-center mt-4.5 text-sm text-[var(--text-muted)]">
-          <span>
-            {mode === "login" ? "Belum punya akun?" : "Sudah punya akun?"}
-          </span>{" "}
-          <button 
-            type="button"
-            onClick={toggleMode}
-            className="underline cursor-pointer text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
-          >
-            {mode === "login" ? "Daftar" : "Masuk"}
-          </button>
-        </p>
+              {mode === "login" ? "Daftar" : "Masuk"}
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
