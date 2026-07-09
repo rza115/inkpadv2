@@ -396,42 +396,42 @@ export const useChapterStore = create<ChapterState>((set, get) => ({
     }
   },
 
-  loadNotes: async (chapterId: string) => {
-    try {
+    loadNotes: async (chapterId: string) => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('quick_notes')
+          .select('*')
+          .eq('assigned_chapter_id', chapterId)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        set({ notes: data || [] });
+      } catch (_) {
+        set({ notes: [] });
+      }
+    },
+
+    createNote: async (projectId: string, chapterId: string, content: string) => {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from('notes')
-        .select('*')
-        .eq('assigned_chapter_id', chapterId)
-        .order('created_at', { ascending: false });
+      const { error } = await supabase
+        .from('quick_notes')
+        .insert([{
+          project_id: projectId,
+          content,
+          assigned_chapter_id: chapterId,
+          assigned_character_id: null,
+          assigned_world_id: null,
+        }]);
       if (error) throw error;
-      set({ notes: data || [] });
-    } catch (_) {
-      set({ notes: [] });
-    }
-  },
+      await get().loadNotes(chapterId);
+    },
 
-  createNote: async (projectId: string, chapterId: string, content: string) => {
-    const supabase = createClient();
-    const { error } = await supabase
-      .from('notes')
-      .insert([{
-        project_id: projectId,
-        content,
-        assigned_chapter_id: chapterId,
-        assigned_character_id: null,
-        assigned_world_id: null,
-      }]);
-    if (error) throw error;
-    await get().loadNotes(chapterId);
-  },
-
-  deleteNote: async (id: string) => {
-    const supabase = createClient();
-    const { error } = await supabase.from('notes').delete().eq('id', id);
-    if (error) throw error;
-    await get().loadNotes(get().activeChapter?.id || '');
-  },
+    deleteNote: async (id: string) => {
+      const supabase = createClient();
+      const { error } = await supabase.from('quick_notes').delete().eq('id', id);
+      if (error) throw error;
+      await get().loadNotes(get().activeChapter?.id || '');
+    },
 
   setSaveIndicator: (state, timestamp) => {
     set({ saveIndicator: state, lastSavedAt: timestamp || null });
