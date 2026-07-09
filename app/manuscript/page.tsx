@@ -13,6 +13,7 @@ import { SearchPanel } from "@/components/manuscript/SearchPanel";
 import { GeneratorPanel } from "@/components/manuscript/GeneratorPanel";
 import { VersioningPanel } from "@/components/manuscript/VersioningPanel";
 import { useChapterStore } from "@/store/useChapterStore";
+import { createClient } from '@/lib/supabase/client';
 
 function ManuscriptContent() {
   const { isLoading: authLoading } = useAuth();
@@ -29,7 +30,7 @@ function ManuscriptContent() {
   } = useChapterStore();
   
   const initialized = useRef(false);
-  const pageTitle = chapters.length > 0 ? 'Naskah' : 'Memuat…';
+  const [projectTitle, setProjectTitle] = useState<string | null>(null);
 
   // Load data on mount
   useEffect(() => {
@@ -40,6 +41,16 @@ function ManuscriptContent() {
     loadChapters(projectId);
     loadAllCharacters(projectId);
     loadAllWorldEntries(projectId);
+    
+    // Load project title
+    (async () => {
+      const { data } = await createClient()
+        .from('projects')
+        .select('title')
+        .eq('id', projectId)
+        .single();
+      if (data) setProjectTitle(data.title);
+    })();
   }, [projectId, loadChapters, loadAllCharacters, loadAllWorldEntries]);
 
   // Auto-select first chapter after loading (if no last chapter saved)
@@ -87,7 +98,7 @@ function ManuscriptContent() {
   }
 
   return (
-    <Nav layout="project" title={pageTitle} projectId={projectId}>
+    <Nav layout="project" title={projectTitle ?? 'Memuat…'} projectId={projectId}>
       <main id="page-main" className="flex flex-1 min-h-0 overflow-hidden">
         <ChapterPanel projectId={projectId} />
         <EditorPanel projectId={projectId} />
