@@ -188,6 +188,25 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
     localStorage.setItem('inkpad_headers_collapsed', String(next));
   };
 
+  // Theme state — init from document data-theme or localStorage
+  const [themeIcon, setThemeIcon] = useState(() => {
+    if (typeof window === 'undefined') return 'ti ti-sun';
+    const cur = document.documentElement.getAttribute('data-theme') || 'light';
+    return cur === 'dark' ? 'ti ti-moon' : cur === 'sepia' ? 'ti ti-sunset' : 'ti ti-sun';
+  });
+
+  const handleThemeToggle = () => {
+    const root = document.documentElement;
+    const cur = root.getAttribute('data-theme') || 'light';
+    const themes = ['light', 'dark', 'sepia'];
+    const idx = themes.indexOf(cur);
+    const next = themes[(idx + 1) % themes.length];
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('inkpad_theme', next);
+    const icon = next === 'dark' ? 'ti ti-moon' : next === 'sepia' ? 'ti ti-sunset' : 'ti ti-sun';
+    setThemeIcon(icon);
+  };
+
   const toggleTypographyCollapsed = () => {
     const next = !typographyCollapsed;
     setTypographyCollapsed(next);
@@ -362,8 +381,8 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
             <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="versioning-btn" title="Riwayat Versi" onClick={() => setVersioningOpen(true)}>
               <i className="ti ti-history" aria-hidden="true"></i>
             </button>
-            <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="theme-toggle-btn" title="Ganti tema">
-              <i className="ti ti-sun" aria-hidden="true"></i>
+            <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="theme-toggle-btn" title="Ganti tema" onClick={handleThemeToggle}>
+              <i className={`ti ${themeIcon}`} aria-hidden="true"></i>
             </button>
             <button className="flex items-center justify-center gap-1 px-3 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="read-btn">
               <i className="ti ti-book" aria-hidden="true"></i> Baca
