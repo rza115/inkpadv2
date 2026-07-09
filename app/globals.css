@@ -263,6 +263,109 @@ select {
   color: var(--text);
 }
 
+/* ───────── Versioning Panel (Riwayat Versi) ───────── */
+.versioning-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+}
+.versioning-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 360px;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+}
+.versioning-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.versioning-header h2 {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.versioning-close-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.versioning-close-btn:hover { color: var(--text); border-color: var(--accent); }
+.versioning-save-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.versioning-save-row {
+  display: flex;
+  gap: 8px;
+}
+.versioning-save-row input {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.versioning-save-row input:focus { border-color: var(--accent); }
+.versioning-save-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.versioning-save-btn:hover { opacity: 0.9; }
+.versioning-save-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 8px 0 0;
+}
+.versioning-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+.versioning-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-muted);
+}
+.versioning-empty i { font-size: 32px; display: block; margin-bottom: 12px; }
+.versioning-empty p { font-size: 13px; margin: 0 0 4px; }
+
 /* ───────── Badge ───────── */
 .badge {
   font-size: 11px;
