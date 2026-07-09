@@ -29,7 +29,7 @@ function getLocalStorageString(key: string, defaultValue: string): string {
 }
 
 export function EditorPanel({ projectId }: EditorPanelProps) {
-  const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt } = useChapterStore();
+const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, versionRestoreSignal } = useChapterStore();
   
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -60,15 +60,15 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
   useEffect(() => { contentRef.current = content; }, [content]);
   useEffect(() => { titleRefValue.current = title; }, [title]);
 
-  // Update local state when active chapter changes
+  // Sync local state when switching to a different chapter
   useEffect(() => {
     if (activeChapter) {
-      if (activeChapter.id !== activeChapterIdRef.current) {
-        activeChapterIdRef.current = activeChapter.id;
-        setTitle(activeChapter.title || '');
-        setContent(activeChapter.content || '');
-        setWordCount(activeChapter.word_count || 0);
-      }
+      activeChapterIdRef.current = activeChapter.id;
+      setTitle(activeChapter.title || '');
+      setContent(activeChapter.content || '');
+      setWordCount(activeChapter.word_count || 0);
+      clearTimeout(contentSaveTimer.current);
+      clearTimeout(titleSaveTimer.current);
     } else {
       activeChapterIdRef.current = null;
       setTitle('');
@@ -76,6 +76,18 @@ export function EditorPanel({ projectId }: EditorPanelProps) {
       setWordCount(0);
     }
   }, [activeChapter?.id]);
+
+  // Sync local state when version restored on same chapter
+  useEffect(() => {
+    if (!activeChapter || activeChapter.id !== activeChapterIdRef.current) return;
+    setContent(activeChapter.content || '');
+    setWordCount(activeChapter.word_count || 0);
+    if (activeChapter.title !== titleRefValue.current) {
+      setTitle(activeChapter.title || '');
+    }
+    clearTimeout(contentSaveTimer.current);
+    clearTimeout(titleSaveTimer.current);
+  }, [versionRestoreSignal]);
 
   // Count words
   const countWords = (text: string) => {

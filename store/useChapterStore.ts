@@ -59,6 +59,7 @@ interface ChapterState {
   deleteVersion: (id: string) => Promise<void>;
   restoreVersion: (version: ChapterVersion) => Promise<void>;
   clearVersions: () => void;
+  versionRestoreSignal: number;
 
   setSaveIndicator: (state: 'saved' | 'saving' | 'offline' | 'error', timestamp?: string) => void;
   clearError: () => void;
@@ -90,6 +91,7 @@ export const useChapterStore = create<ChapterState>((set, get) => ({
   error: null,
   saveIndicator: 'saved',
   lastSavedAt: null,
+  versionRestoreSignal: 0,
 
   loadChapters: async (projectId: string) => {
     set({ isLoading: true, error: null });
@@ -494,6 +496,7 @@ export const useChapterStore = create<ChapterState>((set, get) => ({
       content: version.content,
       word_count: version.word_count,
     });
+    set((s) => ({ versionRestoreSignal: s.versionRestoreSignal + 1 }));
   },
 
   clearVersions: () => set({ versions: [] }),
