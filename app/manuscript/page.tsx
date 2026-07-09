@@ -29,6 +29,7 @@ function ManuscriptContent() {
   } = useChapterStore();
   
   const initialized = useRef(false);
+  const pageTitle = chapters.length > 0 ? 'Naskah' : 'Memuat…';
 
   // Load data on mount
   useEffect(() => {
@@ -86,7 +87,7 @@ function ManuscriptContent() {
   }
 
   return (
-    <Nav layout="project" title="Memuat…" projectId={projectId}>
+    <Nav layout="project" title={pageTitle} projectId={projectId}>
       <main id="page-main" className="flex flex-1 min-h-0 overflow-hidden">
         <ChapterPanel projectId={projectId} />
         <EditorPanel projectId={projectId} />
