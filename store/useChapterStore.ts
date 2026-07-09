@@ -4,12 +4,13 @@
  */
 import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
-import type { Chapter, Character, WorldEntry, Illustration, Note } from '@/types/chapter';
+import type { Chapter, ChapterVersion, Character, WorldEntry, Illustration, Note } from '@/types/chapter';
 
 interface ChapterState {
   // Data
   chapters: Chapter[];
   activeChapter: Chapter | null;
+  versions: ChapterVersion[];
   allCharacters: Character[];
   linkedCharacters: Character[];
   allWorldEntries: WorldEntry[];
@@ -52,6 +53,13 @@ interface ChapterState {
   createNote: (projectId: string, chapterId: string, content: string) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   
+  // Versioning
+  loadVersions: (chapterId: string) => Promise<void>;
+  saveVersion: (chapterId: string, title: string, content: string, wordCount: number, label?: string) => Promise<ChapterVersion>;
+  deleteVersion: (id: string) => Promise<void>;
+  restoreVersion: (version: ChapterVersion) => Promise<void>;
+  clearVersions: () => void;
+
   setSaveIndicator: (state: 'saved' | 'saving' | 'offline' | 'error', timestamp?: string) => void;
   clearError: () => void;
 }
@@ -62,9 +70,14 @@ function getLastChapterKey(projectId: string) {
   return `${LAST_CHAPTER_KEY_PREFIX}${projectId}`;
 }
 
+function getApiBase(): string {
+  return window.location.origin;
+}
+
 export const useChapterStore = create<ChapterState>((set, get) => ({
   chapters: [],
   activeChapter: null,
+  versions: [],
   allCharacters: [],
   linkedCharacters: [],
   allWorldEntries: [],
@@ -396,46 +409,94 @@ export const useChapterStore = create<ChapterState>((set, get) => ({
     }
   },
 
-    loadNotes: async (chapterId: string) => {
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from('quick_notes')
-          .select('*')
-          .eq('assigned_chapter_id', chapterId)
-          .order('created_at', { ascending: false });
-        if (error) throw error;
-        set({ notes: data || [] });
-      } catch (_) {
-        set({ notes: [] });
-      }
-    },
-
-    createNote: async (projectId: string, chapterId: string, content: string) => {
+  loadNotes: async (chapterId: string) => {
+    try {
       const supabase = createClient();
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('quick_notes')
-        .insert([{
-          project_id: projectId,
-          content,
-          assigned_chapter_id: chapterId,
-          assigned_character_id: null,
-          assigned_world_id: null,
-        }]);
+        .select('*')
+        .eq('assigned_chapter_id', chapterId)
+        .order('created_at', { ascending: false });
       if (error) throw error;
-      await get().loadNotes(chapterId);
-    },
+      set({ notes: data || [] });
+    } catch (_) {
+      set({ notes: [] });
+    }
+  },
 
-    deleteNote: async (id: string) => {
-      const supabase = createClient();
-      const { error } = await supabase.from('quick_notes').delete().eq('id', id);
-      if (error) throw error;
-      await get().loadNotes(get().activeChapter?.id || '');
-    },
+  createNote: async (projectId: string, chapterId: string, content: string) => {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('quick_notes')
+      .insert([{
+        project_id: projectId,
+        content,
+        assigned_chapter_id: chapterId,
+        assigned_character_id: null,
+        assigned_world_id: null,
+      }]);
+    if (error) throw error;
+    await get().loadNotes(chapterId);
+  },
+
+  deleteNote: async (id: string) => {
+    const supabase = createClient();
+    const { error } = await supabase.from('quick_notes').delete().eq('id', id);
+    if (error) throw error;
+    await get().loadNotes(get().activeChapter?.id || '');
+  },
 
   setSaveIndicator: (state, timestamp) => {
     set({ saveIndicator: state, lastSavedAt: timestamp || null });
   },
+
+  // ─── Versioning ──────────────────────────────────────────────────────
+
+  loadVersions: async (chapterId: string) => {
+    try {
+      const res = await fetch(`${getApiBase()}/api/versions?chapter_id=${encodeURIComponent(chapterId)}`);
+      if (!res.ok) throw new Error('Failed to load versions');
+      const json = await res.json();
+      set({ versions: json.data || [] });
+    } catch (err: any) {
+      console.error('loadVersions error:', err.message);
+      set({ versions: [] });
+    }
+  },
+
+  saveVersion: async (chapterId: string, title: string, content: string, wordCount: number, label?: string) => {
+    const res = await fetch('/api/versions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chapter_id: chapterId, title, content, word_count: wordCount, label: label || null }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to save version');
+    }
+    const json = await res.json();
+    const version = json.data as ChapterVersion;
+    set((state) => ({ versions: [version, ...state.versions] }));
+    return version;
+  },
+
+  deleteVersion: async (id: string) => {
+    const res = await fetch(`/api/versions?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete version');
+    set((state) => ({ versions: state.versions.filter((v: ChapterVersion) => v.id !== id) }));
+  },
+
+  restoreVersion: async (version: ChapterVersion) => {
+    const { activeChapter, updateChapter } = get();
+    if (!activeChapter) throw new Error('No active chapter');
+    await updateChapter(activeChapter.id, {
+      title: version.title,
+      content: version.content,
+      word_count: version.word_count,
+    });
+  },
+
+  clearVersions: () => set({ versions: [] }),
 
   clearError: () => set({ error: null }),
 }));
