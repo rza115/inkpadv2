@@ -7,11 +7,19 @@
 import { useState, useCallback } from 'react';
 import { useChapterStore } from '@/store/useChapterStore';
 
+function buildRegex(query: string, caseSensitive: boolean, wholeWord: boolean, global: boolean) {
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = wholeWord ? `\\b${escaped}\\b` : escaped;
+  const flags = (caseSensitive ? '' : 'i') + (global ? 'g' : '');
+  return new RegExp(pattern, flags);
+}
+
 interface SearchPanelProps {
   isOpen: boolean;
   onClose: () => void;
   activeChapterId?: string | null;
   getCurrentContent?: () => string;
+  onReplaceInActiveChapter?: (newContent: string) => void;
 }
 
 interface SearchResult {
@@ -21,7 +29,7 @@ interface SearchResult {
   lineIndex: number;
 }
 
-export function SearchPanel({ isOpen, onClose, activeChapterId, getCurrentContent }: SearchPanelProps) {
+export function SearchPanel({ isOpen, onClose, activeChapterId, getCurrentContent, onReplaceInActiveChapter }: SearchPanelProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [replaceQuery, setReplaceQuery] = useState('');
   const [caseSensitive, setCaseSensitive] = useState(false);
@@ -32,6 +40,7 @@ export function SearchPanel({ isOpen, onClose, activeChapterId, getCurrentConten
   const [hasSearched, setHasSearched] = useState(false);
 
   const chapters = useChapterStore((s) => s.chapters);
+  const updateChapter = useChapterStore((s) => s.updateChapter);
 
   const performSearch = useCallback(() => {
     if (!searchQuery.trim()) {
@@ -76,6 +85,60 @@ export function SearchPanel({ isOpen, onClose, activeChapterId, getCurrentConten
     setCurrentResultIndex(0);
     setHasSearched(true);
   }, [searchQuery, chapters, caseSensitive, wholeWord, statusFilter, activeChapterId, getCurrentContent]);
+
+  const performReplace = useCallback(() => {
+    if (!hasSearched || results.length === 0) return;
+    const r = results[currentResultIndex];
+    if (!r) return;
+    const isActive = r.chapterId === activeChapterId;
+    const currentContent = isActive && getCurrentContent
+      ? getCurrentContent()
+      : (chapters.find(c => c.id === r.chapterId)?.content || '');
+    const lines = currentContent.split('\n');
+    const lineIdx = r.lineIndex - 1;
+    if (lineIdx < 0 || lineIdx >= lines.length) return;
+
+    const regex = buildRegex(searchQuery.trim(), caseSensitive, wholeWord, false);
+    const newLine = lines[lineIdx].replace(regex, replaceQuery);
+    if (newLine === lines[lineIdx]) return;
+    lines[lineIdx] = newLine;
+    const newContent = lines.join('\n');
+
+    if (isActive && onReplaceInActiveChapter) {
+      onReplaceInActiveChapter(newContent);
+    } else {
+      const wc = newContent.trim() ? newContent.trim().split(/\s+/).length : 0;
+      updateChapter(r.chapterId, { content: newContent, word_count: wc });
+    }
+
+    const newResults = results.filter((_, i) => i !== currentResultIndex);
+    setResults(newResults);
+    setCurrentResultIndex((prev) => (newResults.length === 0 ? 0 : Math.min(prev, newResults.length - 1)));
+  }, [hasSearched, results, currentResultIndex, activeChapterId, getCurrentContent, chapters, searchQuery, caseSensitive, wholeWord, replaceQuery, onReplaceInActiveChapter, updateChapter]);
+
+  const performReplaceAll = useCallback(() => {
+    if (!searchQuery.trim()) return;
+    const regex = buildRegex(searchQuery.trim(), caseSensitive, wholeWord, true);
+
+    chapters.forEach((ch) => {
+      if (statusFilter !== 'all' && ch.status !== statusFilter) return;
+      const isActive = ch.id === activeChapterId;
+      const currentContent = isActive && getCurrentContent ? getCurrentContent() : (ch.content || '');
+      if (!regex.test(currentContent)) return;
+      regex.lastIndex = 0;
+      const newContent = currentContent.replace(regex, replaceQuery);
+
+      if (isActive && onReplaceInActiveChapter) {
+        onReplaceInActiveChapter(newContent);
+      } else {
+        const wc = newContent.trim() ? newContent.trim().split(/\s+/).length : 0;
+        updateChapter(ch.id, { content: newContent, word_count: wc });
+      }
+    });
+
+    setResults([]);
+    setHasSearched(false);
+  }, [searchQuery, chapters, caseSensitive, wholeWord, statusFilter, activeChapterId, getCurrentContent, replaceQuery, onReplaceInActiveChapter, updateChapter]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -160,10 +223,10 @@ export function SearchPanel({ isOpen, onClose, activeChapterId, getCurrentConten
           </label>
         </div>
         <div className="search-replace-actions">
-          <button className="search-replace-btn" onClick={performSearch}>
+          <button className="search-replace-btn" onClick={performReplace}>
             <i className="ti ti-arrow-bar-to-down" aria-hidden="true"></i> Ganti
           </button>
-          <button className="search-replace-btn-outline">
+          <button className="search-replace-btn-outline" onClick={performReplaceAll}>
             <i className="ti ti-arrows-exchange" aria-hidden="true"></i> Ganti Semua
           </button>
         </div>

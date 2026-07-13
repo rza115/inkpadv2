@@ -480,7 +480,23 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
     </section>
 
       {/* Overlay Panels */}
-      <SearchPanel isOpen={searchOpen} onClose={() => setSearchOpen(false)} activeChapterId={activeChapter?.id} getCurrentContent={() => content} />
+      <SearchPanel
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        activeChapterId={activeChapter?.id}
+        getCurrentContent={() => content}
+        onReplaceInActiveChapter={(newContent: string) => {
+          setContent(newContent);
+          updateWordCount(newContent);
+          clearTimeout(contentSaveTimer.current);
+          contentSaveTimer.current = setTimeout(() => {
+            if (activeChapter) {
+              const wc = countWords(newContent);
+              updateChapter(activeChapter.id, { content: newContent, word_count: wc });
+            }
+          }, 700);
+        }}
+      />
       <GeneratorPanel isOpen={generatorOpen} onClose={() => setGeneratorOpen(false)} />
       <VersioningPanel isOpen={versioningOpen} onClose={() => setVersioningOpen(false)} />
     </>
