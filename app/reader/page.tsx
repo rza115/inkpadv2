@@ -39,6 +39,24 @@ function ReaderContent_Page() {
   const [isLoading, setIsLoading] = useState(true);
 
 
+  // Load reader-specific stylesheets (mirrors app/epub-reader/page.tsx pattern)
+  useEffect(() => {
+    const cssFiles = [
+      "/css/base.css",
+      "/css/layout.css",
+      "/css/components.css",
+      "/css/reader.css",
+    ];
+    cssFiles.forEach((href) => {
+      if (!document.querySelector(`link[href="${href}"]`)) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = href;
+        document.head.appendChild(link);
+      }
+    });
+  }, []);
+
   // Sync topbar height CSS variable
   useEffect(() => {
     const syncTopbarHeight = () => {

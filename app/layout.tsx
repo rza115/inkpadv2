@@ -32,8 +32,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="h-full">
+    <html lang="id" className="h-full" suppressHydrationWarning>
       <head>
+        {/* Apply stored theme before first paint, to avoid a flash of the wrong theme */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('inkpad_theme');if(t==='light'||t==='dark'||t==='sepia'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`,
+          }}
+        />
+
         {/* Custom CSS - loaded before everything else */}
         <link rel="stylesheet" href="/css/reader-typography.css" />
         

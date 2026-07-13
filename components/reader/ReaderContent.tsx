@@ -3,20 +3,18 @@
  * Renders chapter content with illustrations and navigation
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { Chapter, Illustration } from '@/types/chapter';
 import type { Character } from '@/types/character';
 import type { WorldEntry } from '@/types/worldbuilding';
 import { useReaderStore } from '@/store/useReaderStore';
 import {
-  escapeHtml,
-  buildIllustrationHTML,
-  buildChapterNavigation,
   buildCrosslinkResolver,
-  processChapterContent,
-  replacePlaceholders,
-  getRemainingIllustrations,
+  splitChapterContent,
+  linkifyCrosslinks,
 } from '@/lib/reader';
 
 interface ReaderContentProps {
@@ -28,6 +26,20 @@ interface ReaderContentProps {
   characters: Character[];
   worldEntries: WorldEntry[];
   onChapterChange: (index: number) => void;
+}
+
+// Illustration block component
+function IllustrationBlock({ illustration }: { illustration: Illustration }) {
+  return (
+    <div className="r-illustration">
+      {illustration.video_url ? (
+        <video src={illustration.video_url} autoPlay muted loop playsInline />
+      ) : illustration.image_url ? (
+        <img src={illustration.image_url} alt={illustration.caption || ''} loading="lazy" />
+      ) : null}
+      {illustration.caption && <p className="r-caption">{illustration.caption}</p>}
+    </div>
+  );
 }
 
 export function ReaderContent({
@@ -51,79 +63,6 @@ export function ReaderContent({
     getWidthClass,
     savePosition,
   } = useReaderStore();
-
-  // Build chapter HTML
-  const buildChapterHTML = useCallback(() => {
-    if (!chapter) return '<p class="r-loading">Tidak ada bab yang dipilih.</p>';
-
-    const resolver = buildCrosslinkResolver(characters, worldEntries);
-    let html = `<h1 class="r-chapter-heading">${escapeHtml(chapter.title || 'Tanpa judul')}</h1>`;
-
-    // Process content with illustration markers
-    const { processedContent, pendingIllustrations, usedIndices } = processChapterContent(
-      chapter.content || '',
-      illustrations
-    );
-
-    // Get remaining (unused) illustrations to display at top
-    const remainingIllustrations = getRemainingIllustrations(illustrations, usedIndices);
-    if (remainingIllustrations.length > 0) {
-      html += '<div class="r-illustrations">';
-      remainingIllustrations.forEach((il) => {
-        html += buildIllustrationHTML(il);
-      });
-      html += '</div>';
-    }
-
-    // Render markdown content (need to use global MarkdownRender from vanilla JS)
-    let renderedContent = processedContent;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof window !== 'undefined' && (window as any).MarkdownRender) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      renderedContent = (window as any).MarkdownRender.render(processedContent, resolver);
-    }
-
-    // Replace illustration placeholders with actual HTML
-    renderedContent = replacePlaceholders(renderedContent, pendingIllustrations);
-
-    html += `<div class="r-content">${renderedContent}</div>`;
-    html += buildChapterNavigation(chapters, chapterIndex);
-
-    return html;
-  }, [chapter, chapterIndex, chapters, illustrations, characters, worldEntries]);
-
-  // Wire chapter navigation buttons
-  const wireChapterNav = useCallback(() => {
-    if (!columnRef.current) return;
-
-    const navButtons = columnRef.current.querySelectorAll('.r-nav-btn');
-    navButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt((btn as HTMLElement).dataset.idx || '0', 10);
-        onChapterChange(idx);
-      });
-    });
-  }, [onChapterChange]);
-
-  // Wire crosslinks
-  const wireCrosslinks = useCallback(() => {
-    if (!columnRef.current) return;
-
-    const xlinks = columnRef.current.querySelectorAll('.r-xlink');
-    xlinks.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const type = (link as HTMLElement).dataset.type;
-        const id = (link as HTMLElement).dataset.id;
-        
-        if (type === 'character') {
-          router.push(`/characters?project=${projectId}&open=${id}`);
-        } else if (type === 'world') {
-          router.push(`/worldbuilding?project=${projectId}&open=${id}`);
-        }
-      });
-    });
-  }, [projectId, router]);
 
   // Setup scroll tracking with debounce
   useEffect(() => {
@@ -157,18 +96,6 @@ export function ReaderContent({
     };
   }, [projectId, chapter, chapterIndex, savePosition]);
 
-  // Render chapter content and wire up interactivity
-  useEffect(() => {
-    if (!columnRef.current) return;
-
-    const html = buildChapterHTML();
-    columnRef.current.innerHTML = html;
-
-    // Wire up interactive elements
-    wireChapterNav();
-    wireCrosslinks();
-  }, [buildChapterHTML, wireChapterNav, wireCrosslinks]);
-
   // Apply reader preferences styling
   useEffect(() => {
     if (!columnRef.current) return;
@@ -196,10 +123,91 @@ export function ReaderContent({
     }
   }, [preferences, getFontSizeClass, getWidthClass]);
 
+  // Prepare content segments
+  const resolver = buildCrosslinkResolver(characters, worldEntries);
+  const { segments, usedIndices } = chapter
+    ? splitChapterContent(chapter.content || '', illustrations)
+    : { segments: [], usedIndices: new Set<number>() };
+  const remainingIllustrations = illustrations.filter((_, i) => !usedIndices.has(i));
+
   return (
     <div id="r-pane" ref={paneRef} className="flex-1 overflow-y-auto px-6 py-10 min-w-0 w-full max-md:p-[24px_max(16px,env(safe-area-inset-right,0px))_calc(24px+env(safe-area-inset-bottom,0px))_max(16px,env(safe-area-inset-left,0px))]">
       <div id="r-column" ref={columnRef} className="r-column max-w-[680px] mx-auto transition-[max-width] duration-200">
-        <p className="r-loading">Memuat…</p>
+        {!chapter ? (
+          <p className="r-loading">Tidak ada bab yang dipilih.</p>
+        ) : (
+          <>
+            <h1 className="r-chapter-heading">{chapter.title || 'Tanpa judul'}</h1>
+
+            {remainingIllustrations.length > 0 && (
+              <div className="r-illustrations">
+                {remainingIllustrations.map((il) => (
+                  <IllustrationBlock key={il.id} illustration={il} />
+                ))}
+              </div>
+            )}
+
+            <div className="r-content">
+              {segments.map((seg, i) =>
+                seg.type === 'text' ? (
+                  <ReactMarkdown
+                    key={i}
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      a: ({ href, children }) => {
+                        if (href?.startsWith('#xlink:')) {
+                          const parts = href.split(':');
+                          const type = parts[1];
+                          const id = parts[2];
+                          return (
+                            <button
+                              className="r-xlink"
+                              onClick={() =>
+                                router.push(
+                                  type === 'character'
+                                    ? `/characters?project=${projectId}&open=${id}`
+                                    : `/worldbuilding?project=${projectId}&open=${id}`
+                                )
+                              }
+                            >
+                              {children}
+                            </button>
+                          );
+                        }
+                        return <a href={href}>{children}</a>;
+                      },
+                    }}
+                  >
+                    {linkifyCrosslinks(seg.content, resolver)}
+                  </ReactMarkdown>
+                ) : (
+                  <IllustrationBlock key={i} illustration={seg.illustration} />
+                )
+              )}
+            </div>
+
+            {(chapters[chapterIndex - 1] || chapters[chapterIndex + 1]) && (
+              <div className="r-chapter-nav">
+                {chapters[chapterIndex - 1] && (
+                  <button
+                    className="r-nav-btn prev"
+                    onClick={() => onChapterChange(chapterIndex - 1)}
+                  >
+                    ← {chapters[chapterIndex - 1].title || 'Bab sebelumnya'}
+                  </button>
+                )}
+                {chapters[chapterIndex + 1] && (
+                  <button
+                    className="r-nav-btn next"
+                    onClick={() => onChapterChange(chapterIndex + 1)}
+                  >
+                    {chapters[chapterIndex + 1].title || 'Bab berikutnya'} →
+                  </button>
+                )}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

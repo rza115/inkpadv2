@@ -11,6 +11,7 @@ import { SearchPanel } from './SearchPanel';
 import { GeneratorPanel } from './GeneratorPanel';
 import { VersioningPanel } from './VersioningPanel';
 import { AIPolishModal } from './AIPolishModal';
+import { getCurrentTheme, getThemeIcon, cycleTheme } from '@/lib/theme';
 
 interface EditorPanelProps {
   projectId: string;
@@ -293,23 +294,15 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
     localStorage.setItem('inkpad_headers_collapsed', String(next));
   };
 
-  // Theme state — init from document data-theme or localStorage
+  // Theme state — using shared theme utilities
   const [themeIcon, setThemeIcon] = useState(() => {
     if (typeof window === 'undefined') return 'ti ti-sun';
-    const cur = document.documentElement.getAttribute('data-theme') || 'light';
-    return cur === 'dark' ? 'ti ti-moon' : cur === 'sepia' ? 'ti ti-sunset' : 'ti ti-sun';
+    return getThemeIcon(getCurrentTheme());
   });
 
   const handleThemeToggle = () => {
-    const root = document.documentElement;
-    const cur = root.getAttribute('data-theme') || 'light';
-    const themes = ['light', 'dark', 'sepia'];
-    const idx = themes.indexOf(cur);
-    const next = themes[(idx + 1) % themes.length];
-    root.setAttribute('data-theme', next);
-    localStorage.setItem('inkpad_theme', next);
-    const icon = next === 'dark' ? 'ti ti-moon' : next === 'sepia' ? 'ti ti-sunset' : 'ti ti-sun';
-    setThemeIcon(icon);
+    const next = cycleTheme();
+    setThemeIcon(getThemeIcon(next));
   };
 
   const toggleTypographyCollapsed = () => {

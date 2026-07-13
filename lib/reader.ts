@@ -6,6 +6,11 @@
 import type { Chapter, Illustration, WorldEntry } from '@/types/chapter';
 import type { Character } from '@/types/character';
 
+// Chapter content segment types for React rendering
+export type ChapterSegment =
+  | { type: "text"; content: string }
+  | { type: "illustration"; illustration: Illustration };
+
 // HTML escaping utility
 export function escapeHtml(str: string): string {
   const div = document.createElement('div');
@@ -99,6 +104,66 @@ export function buildCrosslinkResolver(
     
     return null;
   };
+}
+
+// Split chapter content into segments (text + illustrations) for React rendering
+export function splitChapterContent(
+  content: string,
+  illustrations: Illustration[]
+): { segments: ChapterSegment[]; usedIndices: Set<number> } {
+  const illustrationsMap = new Map<number, Illustration>();
+  illustrations.forEach((il, i) => illustrationsMap.set(i, il));
+
+  const markerRegex = /\{\{illus:(\d+)\}\}/g;
+  const usedIndices = new Set<number>();
+  const segments: ChapterSegment[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = markerRegex.exec(content)) !== null) {
+    const textChunk = content.substring(lastIndex, match.index);
+    if (textChunk.trim()) segments.push({ type: "text", content: textChunk });
+
+    const illusIndex = parseInt(match[1], 10);
+    const illustration = illustrationsMap.get(illusIndex);
+    if (illustration) {
+      segments.push({ type: "illustration", illustration });
+      usedIndices.add(illusIndex);
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  const remainder = content.substring(lastIndex);
+  if (remainder.trim()) segments.push({ type: "text", content: remainder });
+
+  return { segments, usedIndices };
+}
+
+// Convert character/world names in text to markdown links for crosslink rendering
+export function linkifyCrosslinks(
+  text: string,
+  resolver: (name: string) => { type: 'character' | 'world'; id: string } | null
+): string {
+  // Build a regex pattern from all known names
+  // For simplicity, we'll scan word by word and check against resolver
+  // This is a basic implementation - can be optimized with a trie or similar
+  
+  // Split into words while preserving punctuation
+  const words = text.split(/(\s+|[.,!?;:—–-])/);
+  
+  return words.map(word => {
+    const trimmed = word.trim();
+    if (!trimmed || /^\s+$/.test(word) || /^[.,!?;:—–-]$/.test(word)) {
+      return word; // Keep whitespace and punctuation as-is
+    }
+    
+    const resolved = resolver(trimmed);
+    if (resolved) {
+      return `[${word}](#xlink:${resolved.type}:${resolved.id})`;
+    }
+    
+    return word;
+  }).join('');
 }
 
 // Process chapter content with illustrations

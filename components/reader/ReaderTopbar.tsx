@@ -3,10 +3,12 @@
  * Top navigation bar with reader controls
  */
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Select } from '@/components/ui';
 import { useReaderStore, FONT_FAMILIES, TEXT_ALIGNS } from '@/store/useReaderStore';
 import type { FontFamily, TextAlign } from '@/types/reader';
+import { getCurrentTheme, getThemeIcon, cycleTheme } from '@/lib/theme';
 
 interface ReaderTopbarProps {
   projectId: string | null;
@@ -24,6 +26,8 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
     cycleWidth,
   } = useReaderStore();
 
+  const [themeIcon, setThemeIcon] = useState(() => getThemeIcon(getCurrentTheme()));
+
   const handleBack = () => {
     if (projectId) {
       router.push(`/manuscript?project=${projectId}`);
@@ -33,29 +37,8 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
   };
 
   const handleThemeToggle = () => {
-    // Access global theme toggle
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof window !== 'undefined' && (window as any).InkpadTheme) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).InkpadTheme.toggle();
-    }
-  };
-
-  const getThemeIcon = () => {
-    if (typeof window === 'undefined') return 'ti ti-sun';
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const theme = (window as any).InkpadTheme?.getCurrent?.() || 'light';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const themes = (window as any).InkpadTheme?.getThemes?.() || [
-      { id: 'light', icon: 'ti ti-sun' },
-      { id: 'dark', icon: 'ti ti-moon' }
-    ];
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const currentIdx = themes.findIndex((t: any) => t.id === theme);
-    const nextIdx = (currentIdx + 1) % themes.length;
-    return themes[nextIdx]?.icon || 'ti ti-sun';
+    const next = cycleTheme();
+    setThemeIcon(getThemeIcon(next));
   };
 
   return (
@@ -144,7 +127,7 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
           onClick={handleThemeToggle}
           title="Ganti tema"
         >
-          <i className={getThemeIcon()} aria-hidden="true"></i>
+          <i className={themeIcon} aria-hidden="true"></i>
         </button>
       </div>
     </div>
