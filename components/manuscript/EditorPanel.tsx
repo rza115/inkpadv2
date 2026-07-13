@@ -149,30 +149,70 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
   }, [activeChapter, forceSave, projectId, router]);
 
   // Toolbar actions - read from textarea directly to avoid stale closure
+  // Supports toggle: applying the same formatting twice on the same
+  // selection removes it instead of stacking markers.
   const applyToolbar = useCallback((type: string) => {
     const ta = textareaRef.current;
     if (!ta) return;
-    
+
     const currentContent = ta.value;
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const before = currentContent.substring(0, start);
     const after = currentContent.substring(end);
     const selected = currentContent.substring(start, end);
-    
+
     let newContent = currentContent;
-    
-    if (type === 'bold') {
-      newContent = before + '**' + selected + '**' + after;
-    } else if (type === 'italic') {
-      newContent = before + '_' + selected + '_' + after;
+    let newStart = start;
+    let newEnd = end;
+
+    if (type === 'bold' || type === 'italic') {
+      const marker = type === 'bold' ? '**' : '_';
+      const mLen = marker.length;
+
+      if (before.endsWith(marker) && after.startsWith(marker)) {
+        // Marker sits right outside the selection -> un-wrap
+        newContent = before.slice(0, before.length - mLen) + selected + after.slice(mLen);
+        newStart = start - mLen;
+        newEnd = end - mLen;
+      } else if (selected.startsWith(marker) && selected.endsWith(marker) && selected.length >= mLen * 2) {
+        // Marker is included inside the selection -> un-wrap
+        const unwrapped = selected.slice(mLen, selected.length - mLen);
+        newContent = before + unwrapped + after;
+        newStart = start;
+        newEnd = start + unwrapped.length;
+      } else {
+        // Not formatted yet -> wrap
+        newContent = before + marker + selected + marker + after;
+        newStart = start + mLen;
+        newEnd = end + mLen;
+      }
     } else if (type === 'heading') {
-      newContent = before + '## ' + selected + after;
+      const marker = '## ';
+      const mLen = marker.length;
+
+      if (before.endsWith(marker)) {
+        // Marker sits right before the selection -> un-heading
+        newContent = before.slice(0, before.length - mLen) + selected + after;
+        newStart = start - mLen;
+        newEnd = end - mLen;
+      } else if (selected.startsWith(marker)) {
+        // Marker is included inside the selection -> un-heading
+        const unwrapped = selected.slice(mLen);
+        newContent = before + unwrapped + after;
+        newStart = start;
+        newEnd = start + unwrapped.length;
+      } else {
+        // Not a heading yet -> add marker
+        newContent = before + marker + selected + after;
+        newStart = start + mLen;
+        newEnd = end + mLen;
+      }
     }
-    
+
     setContent(newContent);
     updateWordCount(newContent);
-    
+
     // Schedule save
     clearTimeout(contentSaveTimer.current);
     contentSaveTimer.current = setTimeout(() => {
@@ -181,15 +221,12 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
         updateChapter(activeChapter.id, { content: newContent, word_count: wc });
       }
     }, 700);
-    
-    // Restore cursor
+
+    // Restore selection to the same logical text, so clicking the
+    // same button again toggles the formatting back off.
     setTimeout(() => {
       ta.focus();
-      if (type === 'heading') {
-        ta.setSelectionRange(start + 3, start + 3 + selected.length);
-      } else {
-        ta.setSelectionRange(start + 2, end + 2);
-      }
+      ta.setSelectionRange(newStart, newEnd);
     }, 0);
   }, [activeChapter, updateChapter, updateWordCount]);
 
