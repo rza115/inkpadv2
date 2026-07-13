@@ -10,6 +10,7 @@ import { useChapterStore } from '@/store/useChapterStore';
 import { SearchPanel } from './SearchPanel';
 import { GeneratorPanel } from './GeneratorPanel';
 import { VersioningPanel } from './VersioningPanel';
+import { AIPolishModal } from './AIPolishModal';
 
 interface EditorPanelProps {
   projectId: string;
@@ -41,6 +42,8 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
   const [searchOpen, setSearchOpen] = useState(false);
   const [generatorOpen, setGeneratorOpen] = useState(false);
   const [versioningOpen, setVersioningOpen] = useState(false);
+  const [polishOpen, setPolishOpen] = useState(false);
+  const [polishSelection, setPolishSelection] = useState<{ text: string; start: number; end: number } | null>(null);
   const [headersCollapsed, setHeadersCollapsed] = useState(() => getLocalStorage('inkpad_headers_collapsed', false));
   const [typographyCollapsed, setTypographyCollapsed] = useState(() => getLocalStorage('inkpad_typography_bar_collapsed', false));
   
@@ -230,6 +233,50 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
     }, 0);
   }, [activeChapter, updateChapter, updateWordCount]);
 
+  // Open the AI Polish modal with the current textarea selection
+  const openAIPolish = useCallback(() => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const text = ta.value.substring(start, end);
+    if (!text.trim()) {
+      alert('Seleksi teks yang mau dirapikan dulu, ya.');
+      return;
+    }
+    setPolishSelection({ text, start, end });
+    setPolishOpen(true);
+  }, []);
+
+  // Replace the originally-selected range with the polished text
+  const handlePolishApply = useCallback((newText: string) => {
+    if (!polishSelection) return;
+    const ta = textareaRef.current;
+    const currentContent = ta ? ta.value : content;
+    const { start, end } = polishSelection;
+    const before = currentContent.substring(0, start);
+    const after = currentContent.substring(end);
+    const newContent = before + newText + after;
+
+    setContent(newContent);
+    updateWordCount(newContent);
+
+    clearTimeout(contentSaveTimer.current);
+    contentSaveTimer.current = setTimeout(() => {
+      if (activeChapter) {
+        const wc = countWords(newContent);
+        updateChapter(activeChapter.id, { content: newContent, word_count: wc });
+      }
+    }, 700);
+
+    setTimeout(() => {
+      if (ta) {
+        ta.focus();
+        ta.setSelectionRange(start, start + newText.length);
+      }
+    }, 0);
+  }, [polishSelection, activeChapter, updateChapter, updateWordCount, content]);
+
   const toggleFocusMode = useCallback(() => {
     setFocusMode((prev) => {
       const next = !prev;
@@ -302,11 +349,15 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
         e.preventDefault();
         applyToolbar('italic');
       }
+      if (isCtrl && e.shiftKey && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        openAIPolish();
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [forceSave, applyToolbar, toggleFocusMode, focusMode]);
+  }, [forceSave, applyToolbar, toggleFocusMode, focusMode, openAIPolish]);
 
   // Export - read from refs to avoid stale closure
   const exportChapterMarkdown = () => {
@@ -460,7 +511,7 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
           <button type="button" className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" data-md="heading" title="Heading" data-shortcut="Ctrl+H" onClick={() => applyToolbar('heading')}>
             <i className="ti ti-heading" aria-hidden="true"></i>
           </button>
-          <button type="button" className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="ai-polish-btn" title="AI Polish — rapikan teks (Ctrl+Shift+P)" data-shortcut="Ctrl+Shift+P">
+          <button type="button" className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="ai-polish-btn" title="AI Polish — rapikan teks (Ctrl+Shift+P)" data-shortcut="Ctrl+Shift+P" onClick={openAIPolish}>
             <i className="ti ti-sparkles" aria-hidden="true"></i>
           </button>
           <button
@@ -545,6 +596,12 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
       />
       <GeneratorPanel isOpen={generatorOpen} onClose={() => setGeneratorOpen(false)} />
       <VersioningPanel isOpen={versioningOpen} onClose={() => setVersioningOpen(false)} />
+      <AIPolishModal
+        isOpen={polishOpen}
+        onClose={() => setPolishOpen(false)}
+        selectedText={polishSelection?.text || ''}
+        onApply={handlePolishApply}
+      />
     </>
   );
 }
