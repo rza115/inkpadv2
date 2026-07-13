@@ -5,6 +5,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useChapterStore } from '@/store/useChapterStore';
 import { SearchPanel } from './SearchPanel';
 import { GeneratorPanel } from './GeneratorPanel';
@@ -29,6 +30,7 @@ function getLocalStorageString(key: string, defaultValue: string): string {
 }
 
 export function EditorPanel({ projectId }: EditorPanelProps) {
+const router = useRouter();
 const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, versionRestoreSignal } = useChapterStore();
   
   const [title, setTitle] = useState('');
@@ -138,6 +140,13 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
       word_count: wc,
     });
   }, [activeChapter, updateChapter]);
+
+  // Buka mode baca — simpan draft dulu biar Reader nampilin versi terbaru
+  const openReadMode = useCallback(async () => {
+    if (!activeChapter) return;
+    await forceSave();
+    router.push(`/reader?project=${projectId}&chapterId=${activeChapter.id}`);
+  }, [activeChapter, forceSave, projectId, router]);
 
   // Toolbar actions - read from textarea directly to avoid stale closure
   const applyToolbar = useCallback((type: string) => {
@@ -396,7 +405,7 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
             <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="theme-toggle-btn" title="Ganti tema" onClick={handleThemeToggle}>
               <i className={`ti ${themeIcon}`} aria-hidden="true"></i>
             </button>
-            <button className="flex items-center justify-center gap-1 px-3 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="read-btn">
+            <button className="flex items-center justify-center gap-1 px-3 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" id="read-btn" title="Buka mode baca" onClick={openReadMode}>
               <i className="ti ti-book" aria-hidden="true"></i> Baca
             </button>
             <span className="text-xs text-[var(--text-muted)] ml-2" id="save-indicator">{saveIndicatorText()}</span>
