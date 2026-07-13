@@ -79,12 +79,27 @@ export default function LoginPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--bg)]">
-        <div className="w-full max-w-sm bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8 shadow-sm">
-          <div className="flex items-baseline gap-1 mb-1">
-            <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
-            <span className="w-0.5 h-6 bg-[var(--accent)] cursor" aria-hidden="true"></span>
+        <div
+          className="w-full max-w-sm bg-white border rounded-[18px] shadow-[0_24px_60px_-20px_rgba(34,29,43,0.16),_0_2px_10px_rgba(34,29,43,0.04)] p-11 pb-9 relative"
+          style={{ borderColor: 'var(--novelist-line)' }}
+        >
+          <div
+            className="absolute top-0 left-6 right-6 h-[3px] rounded-b-[3px]"
+            style={{ background: 'linear-gradient(90deg, var(--novelist-lavender), var(--novelist-pink))' }}
+          ></div>
+          <div className="flex items-baseline gap-2.5 mb-1.5">
+            <h1
+              className="font-serif font-semibold text-[32px] tracking-[0.2px]"
+              style={{ fontFamily: 'var(--font-serif)', color: 'var(--novelist-ink)' }}
+            >
+              Inkpad
+            </h1>
+            <span
+              className="w-1.5 h-1.5 rounded-full -translate-y-2"
+              style={{ background: 'var(--novelist-pink)' }}
+            ></span>
           </div>
-          <p className="text-[var(--text-muted)] text-sm tracking-wide mb-7">Memuat…</p>
+          <p className="text-sm" style={{ color: 'var(--novelist-ink-soft)' }}>Memuat…</p>
         </div>
       </div>
     );
@@ -92,18 +107,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--bg)]">
-      <div className="w-full max-w-sm bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8 shadow-sm">
-        {/* Brand */}
-        <div className="flex items-baseline gap-1 mb-1">
-          <h1 className="brand-title text-3xl font-serif">Inkpad</h1>
-          <span className="w-0.5 h-6 bg-[var(--accent)] cursor" aria-hidden="true"></span>
-        </div>
-
-        {/* Card */}
-        <div 
-          className="bg-white border rounded-[18px] shadow-[0_24px_60px_-20px_rgba(34,29,43,0.16),_0_2px_10px_rgba(34,29,43,0.04)] p-11 pb-9 relative"
-          style={{ borderColor: 'var(--novelist-line)' }}
-        >
+      {/* Single Card - no more duplicate outer wrapper/brand */}
+      <div
+        className="w-full max-w-sm bg-white border rounded-[18px] shadow-[0_24px_60px_-20px_rgba(34,29,43,0.16),_0_2px_10px_rgba(34,29,43,0.04)] p-11 pb-9 relative"
+        style={{ borderColor: 'var(--novelist-line)' }}
+      >
           {/* Gradient top border */}
           <div 
             className="absolute top-0 left-6 right-6 h-[3px] rounded-b-[3px]"
@@ -281,7 +289,6 @@ export default function LoginPage() {
               {mode === "login" ? "Daftar" : "Masuk"}
             </button>
           </p>
-        </div>
       </div>
     </div>
   );
