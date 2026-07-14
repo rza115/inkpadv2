@@ -433,7 +433,13 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
       <section className={`flex-1 flex flex-col min-w-0 bg-[var(--bg)] ${focusMode ? 'fixed inset-0 z-[9999] bg-[var(--bg)]' : ''}`}>
       {/* Active editor */}
       <div className="flex-1 flex flex-col" id="editor-active">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border)] gap-4 shrink-0">
+        <div
+          className={
+            headersCollapsed
+              ? "h-0 py-0 overflow-hidden border-b-0"
+              : "flex items-center justify-between px-5 py-3 border-b border-[var(--border)] gap-4 shrink-0"
+          }
+        >
           <input
             ref={titleRef}
             type="text"
@@ -494,7 +500,13 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
           </div>
         </div>
 
-        <div className="flex items-center gap-1 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
+        <div
+          className={
+            headersCollapsed
+              ? "h-0 py-0 overflow-hidden border-b-0"
+              : "flex items-center gap-1 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface)] shrink-0"
+          }
+        >
           <button type="button" className="flex items-center justify-center w-8 h-8 bg-transparent border-none text-[var(--text-muted)] cursor-pointer rounded-[var(--radius)] transition-colors hover:text-[var(--text)] hover:bg-[var(--surface-raised)]" data-md="bold" title="Bold" data-shortcut="Ctrl+B" onClick={() => applyToolbar('bold')}>
             <i className="ti ti-bold" aria-hidden="true"></i>
           </button>
@@ -518,7 +530,14 @@ const { activeChapter, chapters, updateChapter, saveIndicator, lastSavedAt, vers
           </button>
         </div>
 
-        <div className={`flex items-center gap-3 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface)] text-xs shrink-0 transition-all duration-200 ${typographyCollapsed ? 'h-0 py-0 overflow-hidden border-b-0' : ''}`} id="editor-typography-bar">
+        <div
+          className={
+            typographyCollapsed
+              ? "flex items-center gap-3 px-4 h-0 py-0 border-b-0 bg-[var(--surface)] text-xs shrink-0 overflow-hidden transition-all duration-200"
+              : "flex items-center gap-3 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface)] text-xs shrink-0 transition-all duration-200"
+          }
+          id="editor-typography-bar"
+        >
           <span className="text-[var(--text-muted)] shrink-0">Font:</span>
           <select className="px-2 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-[var(--radius)] text-[var(--text)] cursor-pointer text-xs" id="editor-font-family" title="Font" value={fontFamily} onChange={(e) => { const v = e.target.value; setFontFamily(v); localStorage.setItem('inkpad_editor_font', v); }}>
             <option value="literata">Literata</option>
