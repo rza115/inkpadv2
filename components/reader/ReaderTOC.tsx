@@ -38,7 +38,7 @@ export function ReaderTOC({
           {chapters.map((chapter, index) => (
             <div
               key={chapter.id}
-              className={`px-2.5 py-2 rounded-md cursor-pointer text-xs mb-0.5 leading-snug ${index === activeIndex ? 'bg-[var(--surface)] text-[var(--accent)]' : 'text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]'}`}
+              className={`py-2 cursor-pointer text-xs mb-1 leading-snug ${index === activeIndex ? 'border-l-2 border-[var(--accent)] bg-[var(--surface-raised)] text-[var(--accent)] font-medium pl-[8px] pr-2.5 rounded-r-md' : 'pl-[10px] pr-2.5 text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)] rounded-md'}`}
               onClick={() => handleChapterClick(index)}
             >
               {chapter.title || 'Tanpa judul'}

@@ -76,6 +76,9 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
           ))}
         </Select>
 
+        {/* Separator */}
+        <span className="w-px h-4 bg-[var(--border)] mx-0.5" aria-hidden="true" />
+
         {/* Font Size Controls */}
         <button
           id="font-sm"
@@ -109,6 +112,9 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
             ></i>
           </button>
         ))}
+
+        {/* Separator */}
+        <span className="w-px h-4 bg-[var(--border)] mx-0.5" aria-hidden="true" />
 
         {/* Width Toggle */}
         <button
