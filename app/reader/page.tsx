@@ -38,55 +38,6 @@ function ReaderContent_Page() {
   const [illustrations, setIllustrations] = useState<Illustration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-
-  // Load reader-specific stylesheets (mirrors app/epub-reader/page.tsx pattern)
-  useEffect(() => {
-    const cssFiles = [
-      "/css/base.css",
-      "/css/layout.css",
-      "/css/components.css",
-      "/css/reader.css",
-    ];
-    cssFiles.forEach((href) => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = href;
-        document.head.appendChild(link);
-      }
-    });
-  }, []);
-
-  // Sync topbar height CSS variable
-  useEffect(() => {
-    const syncTopbarHeight = () => {
-      const topbar = document.querySelector(".r-topbar") as HTMLElement;
-      if (topbar) {
-        document.documentElement.style.setProperty(
-          "--r-topbar-h",
-          `${topbar.offsetHeight}px`
-        );
-      }
-    };
-
-    syncTopbarHeight();
-    window.addEventListener("resize", syncTopbarHeight);
-
-    const topbar = document.querySelector(".r-topbar");
-    let resizeObserver: ResizeObserver | null = null;
-    if (topbar && window.ResizeObserver) {
-      resizeObserver = new ResizeObserver(syncTopbarHeight);
-      resizeObserver.observe(topbar);
-    }
-
-    return () => {
-      window.removeEventListener("resize", syncTopbarHeight);
-      if (resizeObserver && topbar) {
-        resizeObserver.unobserve(topbar);
-      }
-    };
-  }, []);
-
   // Auto-collapse TOC on mobile
   useEffect(() => {
     if (window.innerWidth < 760) {
