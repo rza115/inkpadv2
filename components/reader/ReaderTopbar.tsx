@@ -63,18 +63,20 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
 
       <div className="flex gap-1.5 items-center shrink-0 min-w-0 max-md:col-[1/-1] max-md:row-[2] max-md:justify-start max-md:overflow-x-auto max-md:[-webkit-overflow-scrolling:touch] max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden">
         {/* Font Family */}
-        <Select
-          id="font-family-select"
-          value={preferences.fontFamily}
-          onChange={(e) => setFontFamily(e.target.value as FontFamily)}
-          className="bg-transparent border border-[var(--border)] text-[var(--text-muted)] rounded-md h-7 px-2 pr-6 text-[11px] cursor-pointer appearance-none max-w-[108px] hover:text-[var(--text)] hover:border-[var(--accent)] focus:text-[var(--text)] focus:border-[var(--accent)] focus:outline-none max-md:max-w-[88px] max-md:text-[10px]"
-        >
-          {FONT_FAMILIES.map((font) => (
-            <option key={font} value={font}>
-              {font.charAt(0).toUpperCase() + font.slice(1)}
-            </option>
-          ))}
-        </Select>
+        <div className="[&_.field]:mb-0 [&_.field]:contents">
+          <Select
+            id="font-family-select"
+            value={preferences.fontFamily}
+            onChange={(e) => setFontFamily(e.target.value as FontFamily)}
+            className="bg-transparent border border-[var(--border)] text-[var(--text-muted)] rounded-md h-7 px-2 pr-6 text-[11px] cursor-pointer appearance-none max-w-[108px] hover:text-[var(--text)] hover:border-[var(--accent)] focus:text-[var(--text)] focus:border-[var(--accent)] focus:outline-none max-md:max-w-[88px] max-md:text-[10px]"
+          >
+            {FONT_FAMILIES.map((font) => (
+              <option key={font} value={font}>
+                {font.charAt(0).toUpperCase() + font.slice(1)}
+              </option>
+            ))}
+          </Select>
+        </div>
 
         {/* Separator */}
         <span className="w-px h-4 bg-[var(--border)] mx-0.5" aria-hidden="true" />
