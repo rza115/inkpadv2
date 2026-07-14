@@ -38,6 +38,26 @@ function ReaderContent_Page() {
   const [illustrations, setIllustrations] = useState<Illustration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Sync topbar height CSS variable for mobile TOC positioning
+  useEffect(() => {
+    const syncTopbarHeight = () => {
+      const topbar = document.querySelector('[data-reader-topbar]') as HTMLElement;
+      if (topbar) {
+        document.documentElement.style.setProperty(
+          '--r-topbar-h',
+          `${topbar.offsetHeight}px`
+        );
+      }
+    };
+
+    syncTopbarHeight();
+    window.addEventListener('resize', syncTopbarHeight);
+
+    return () => {
+      window.removeEventListener('resize', syncTopbarHeight);
+    };
+  }, []);
+
   // Auto-collapse TOC on mobile
   useEffect(() => {
     if (window.innerWidth < 760) {

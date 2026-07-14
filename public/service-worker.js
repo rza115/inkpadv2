@@ -2,7 +2,7 @@
 // Caches APP SHELL (CSS/JS/assets) for offline capability
 // Data (Supabase) is handled by offline-queue, not cached here
 
-const CACHE_NAME = 'inkpad-shell-v37-nextjs';
+const CACHE_NAME = 'inkpad-shell-v38-nextjs';
 
 const SHELL_ASSETS = [
   '/',

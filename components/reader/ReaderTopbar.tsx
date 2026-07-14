@@ -42,7 +42,7 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
   };
 
   return (
-    <div className="h-12 flex items-center gap-3 px-4 pt-[env(safe-area-inset-top,0px)] border-b border-[var(--border)] shrink-0 bg-[var(--bg)] z-40 w-full max-w-full min-w-0 max-md:h-auto max-md:min-h-[calc(48px+env(safe-area-inset-top,0px))] max-md:grid max-md:grid-cols-[auto_auto_1fr] max-md:grid-rows-[auto_auto] max-md:p-[max(8px,env(safe-area-inset-top,0px))_12px_8px] max-md:gap-2">
+    <div data-reader-topbar className="h-12 flex items-center gap-3 px-4 pt-[env(safe-area-inset-top,0px)] border-b border-[var(--border)] shrink-0 bg-[var(--bg)] z-40 w-full max-w-full min-w-0 max-md:h-auto max-md:min-h-[calc(48px+env(safe-area-inset-top,0px))] max-md:grid max-md:grid-cols-[auto_auto_1fr] max-md:grid-rows-[auto_auto] max-md:p-[max(8px,env(safe-area-inset-top,0px))_12px_8px] max-md:gap-2">
       <button
         id="back-btn"
         className="flex items-center gap-1.5 bg-transparent border border-[var(--border)] text-[var(--text)] rounded-md px-2.5 py-1 text-xs cursor-pointer whitespace-nowrap hover:border-[var(--accent)] hover:text-[var(--accent)] max-md:col-[1] max-md:row-[1] max-md:px-2 max-md:text-[11px]"
@@ -63,7 +63,7 @@ export function ReaderTopbar({ projectId, chapterTitle, onTOCToggle }: ReaderTop
 
       <div className="flex gap-1.5 items-center shrink-0 min-w-0 max-md:col-[1/-1] max-md:row-[2] max-md:justify-start max-md:overflow-x-auto max-md:[-webkit-overflow-scrolling:touch] max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden">
         {/* Font Family */}
-        <div className="[&_.field]:mb-0 [&_.field]:contents">
+        <div className="[&_.field]:inline-flex [&_.field]:items-center [&_.field]:mb-0">
           <Select
             id="font-family-select"
             value={preferences.fontFamily}
