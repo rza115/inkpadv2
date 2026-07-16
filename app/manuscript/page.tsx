@@ -99,7 +99,7 @@ function ManuscriptContent() {
 
   return (
     <Nav layout="project" title={projectTitle ?? 'Memuat…'} projectId={projectId}>
-      <main id="page-main" className="flex flex-1 min-h-0 overflow-hidden">
+      <main id="page-main" data-fullbleed className="flex flex-1 min-h-0 overflow-hidden">
         <ChapterPanel projectId={projectId} />
         <EditorPanel projectId={projectId} />
         <ContextPanel projectId={projectId} />

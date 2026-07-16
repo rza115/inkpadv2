@@ -149,6 +149,21 @@ body {
 
 a { color: var(--accent-deep); }
 
+/* ───────── Page Main Layout ───────── */
+/* Single source of truth: padding konten utama tiap halaman */
+#page-main {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Opt-out untuk halaman yang butuh full-bleed (mis. manuscript split editor) */
+#page-main[data-fullbleed] {
+  padding: 0;
+  overflow: hidden;
+}
+
 /* ───────── Form Elements ───────── */
 input, button {
   font-family: var(--font-sans);
