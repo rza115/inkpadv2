@@ -2,7 +2,7 @@
 // Caches APP SHELL (CSS/JS/assets) for offline capability
 // Data (Supabase) is handled by offline-queue, not cached here
 
-const CACHE_NAME = 'inkpad-shell-v38-nextjs';
+const CACHE_NAME = 'inkpad-shell-v39-nextjs';
 
 const SHELL_ASSETS = [
   '/',
@@ -61,13 +61,23 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((cached) => {
       const networkFetch = fetch(event.request)
         .then((response) => {
-          if (response.ok) {
+          if (response && response.ok) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           }
           return response;
         })
-        .catch(() => cached);
+        .catch(() => {
+          // Selalu balikin Response yang valid, jangan pernah undefined
+          return (
+            cached ||
+            new Response('Offline', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: { 'Content-Type': 'text/plain' },
+            })
+          );
+        });
 
       return cached || networkFetch;
     })
