@@ -164,6 +164,12 @@ a { color: var(--accent-deep); }
   overflow: hidden;
 }
 
+@media (max-width: 640px) {
+  #page-main {
+    padding: 16px;
+  }
+}
+
 /* ───────── Form Elements ───────── */
 input, button {
   font-family: var(--font-sans);

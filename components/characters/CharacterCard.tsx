@@ -15,7 +15,7 @@ interface CharacterCardProps {
 export function CharacterCard({ character, onClick }: CharacterCardProps) {
   return (
     <div 
-      className="bg-surface border border-default rounded-[var(--radius-lg)] p-4 cursor-pointer flex flex-col items-center text-center gap-2 transition-colors hover:border-accent"
+      className="bg-surface border border-default rounded-[var(--radius-lg)] p-4 cursor-pointer flex flex-col items-center text-center gap-2 transition-colors hover:border-accent min-h-[150px]"
       onClick={onClick}
     >
       <div 

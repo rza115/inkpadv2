@@ -101,7 +101,7 @@ function CharactersContent() {
   return (
     <Nav layout="project" title={pageTitle} projectId={projectId}>
       <main id="page-main">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-4 max-w-[900px]">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3 max-w-[900px] mx-auto max-md:gap-2">
           {loading && <Loading />}
           
           {!loading && (
