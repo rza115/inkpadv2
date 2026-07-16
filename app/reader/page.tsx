@@ -109,7 +109,7 @@ function ReaderContent_Page() {
       try {
         const supabase = createClient();
         const { data, error } = await supabase
-          .from("illustrations")
+          .from("chapter_illustrations")
           .select("*")
           .eq("chapter_id", activeChapter.id)
           .order("order_index");
